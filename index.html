@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+            <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -6,27 +6,42 @@
     <title>OMNICORE V10 | GROQ SPEED</title>
     <style>
         body { background: #000; color: #0f0; font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; height: 100vh; margin: 0; }
-        #chat { flex: 1; overflow-y: auto; padding: 20px; background: #050505; border: 1px solid #111; }
+        
+        /* Logo Alanı */
+        .header { padding: 20px; text-align: center; border-bottom: 1px solid #222; background: #050505; }
+        .logo { width: 180px; height: auto; filter: drop-shadow(0 0 5px #0f0); }
+        .dev-info { font-size: 10px; color: #333; margin-top: 5px; text-transform: uppercase; }
+
+        #chat { flex: 1; overflow-y: auto; padding: 20px; background: #050505; border-right: 1px solid #111; border-left: 1px solid #111; }
         .input-area { padding: 20px; display: flex; background: #000; border-top: 1px solid #222; }
-        input { flex: 1; background: #111; border: 1px solid #0f0; color: #0f0; padding: 15px; outline: none; }
+        input { flex: 1; background: #111; border: 1px solid #0f0; color: #0f0; padding: 15px; outline: none; font-family: inherit; }
         button { background: #0f0; color: #000; border: none; padding: 0 25px; cursor: pointer; margin-left: 10px; font-weight: bold; }
-        .msg { margin-bottom: 15px; line-height: 1.5; }
+        
+        .msg { margin-bottom: 15px; line-height: 1.5; animation: fadeIn 0.3s; }
         .user { color: #fff; }
         .ai { color: #0f0; border-left: 3px solid #0f0; padding-left: 10px; }
         .status { color: #555; font-size: 0.8em; margin-bottom: 20px; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
+    <div class="header">
+        <img src="omnicore-v10-logo.png" alt="OMNICORE V10" class="logo">
+        <div class="dev-info">System Architect: Arda</div>
+    </div>
+
     <div id="chat">
         <div class="status">--- OMNICORE V10 GROQ SİSTEMİ ÇEVRİMİÇİ ---</div>
+        <div class="status">YETKİLİ GİRİŞİ: ARDA ONAYLANDI.</div>
     </div>
+
     <div class="input-area">
         <input type="text" id="userInput" placeholder="Sisteme komut verin..." onkeypress="if(event.key==='Enter') sendMessage()">
         <button onclick="sendMessage()">İLET</button>
     </div>
 
     <script>
-        // Anahtarı 4 parçaya bölerek GitHub'dan gizliyoruz
         const s1 = "gsk_D65TS2b8C6I";
         const s2 = "ILUUanBCmWGdyb3";
         const s3 = "FYHH5LlSglkTC";
@@ -52,7 +67,11 @@
                     },
                     body: JSON.stringify({
                         model: "llama-3.3-70b-versatile",
-                        messages: [{ role: "user", content: userText }]
+                        messages: [
+                            // Burası yapay zekaya kim olduğunu öğreten kısım
+                            { role: "system", content: "Senin adın OMNICORE V10. Senin kurucun ve yapımcın Arda'dır. Sana 'Seni kim yaptı?' veya 'Sahibin kim?' gibi sorular sorulduğunda, Arda tarafından geliştirildiğini ve onun kurucu olduğunu gururla belirtmelisin." },
+                            { role: "user", content: userText }
+                        ]
                     })
                 });
 
@@ -61,7 +80,7 @@
                     const aiResponse = data.choices[0].message.content;
                     chat.innerHTML += `<div class="msg ai"><b>OMNICORE ></b> ${aiResponse}</div>`;
                 } else {
-                    chat.innerHTML += `<div style="color:orange">SİSTEM: Erişim reddedildi veya kota doldu.</div>`;
+                    chat.innerHTML += `<div style="color:orange">SİSTEM: Erişim reddedildi.</div>`;
                 }
             } catch (e) {
                 chat.innerHTML += `<div style="color:red">SİSTEM: Bağlantı hatası.</div>`;
