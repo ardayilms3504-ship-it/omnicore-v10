@@ -7,12 +7,12 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     
-    <title>OMNICORE V10 | GLOBAL</title>
+    <title>OMNICORE V10 | ARCHITECT ARDA</title>
     
     <style>
-        /* Uygulama Hissi Veren Dokunma Ayarı */
+        /* ANA SİSTEM TASARIMI */
         body { 
-            touch-action: manipulation; 
+            touch-action: manipulation; /* TIKLAMA GECİKMESİNİ SİLER */
             background: #000; 
             color: #0f0; 
             font-family: 'Courier New', Courier, monospace; 
@@ -22,44 +22,64 @@
             margin: 0; 
             overflow: hidden; 
         }
-        
-        /* Header ve Logo */
-        .header { padding: 15px; text-align: center; border-bottom: 1px solid #111; background: #050505; }
-        .logo { width: 140px; height: auto; filter: drop-shadow(0 0 5px #0f0); }
-        .dev-info { font-size: 10px; color: #444; letter-spacing: 2px; margin-top: 5px; }
 
-        /* Chat Alanı */
-        #chat { flex: 1; overflow-y: auto; padding: 20px; background: #020202; }
-        .input-area { padding: 15px; display: flex; background: #000; border-top: 1px solid #222; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
+        /* AÇILIŞ EKRANI (SPLASH SCREEN) */
+        #splash { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; z-index: 9999; 
+            transition: opacity 0.8s ease; 
+        }
+        .splash-logo { width: 180px; filter: drop-shadow(0 0 15px #0f0); animation: pulse 2s infinite; }
+        .loader-text { margin-top: 20px; font-size: 10px; letter-spacing: 4px; color: #0f0; opacity: 0.7; }
+
+        /* ARAYÜZ PARÇALARI */
+        .header { padding: 15px; text-align: center; border-bottom: 1px solid #111; background: #050505; }
+        .logo-small { width: 110px; filter: drop-shadow(0 0 5px #0f0); }
+        .dev-info { font-size: 9px; color: #444; letter-spacing: 2px; margin-top: 5px; }
+
+        #chat { flex: 1; overflow-y: auto; padding: 20px; background: #020202; scroll-behavior: smooth; }
+        .input-area { 
+            padding: 15px; display: flex; background: #000; border-top: 1px solid #222; 
+            padding-bottom: calc(15px + env(safe-area-inset-bottom)); 
+        }
         
         input { flex: 1; background: #0a0a0a; border: 1px solid #0f0; color: #0f0; padding: 12px; outline: none; font-family: inherit; font-size: 16px; border-radius: 5px; }
-        button { background: #0f0; color: #000; border: none; padding: 0 20px; cursor: pointer; margin-left: 10px; font-weight: bold; border-radius: 5px; }
-        
-        /* Mesajlar */
-        .msg { margin-bottom: 20px; line-height: 1.6; }
-        .user { color: #fff; border-bottom: 1px solid #111; padding-bottom: 8px; font-size: 0.9em; }
-        .ai { color: #0f0; border-left: 3px solid #0f0; padding-left: 15px; white-space: pre-wrap; font-size: 0.95em; }
-        .status { color: #333; font-size: 0.75em; margin-bottom: 5px; }
+        button { background: #0f0; color: #000; border: none; padding: 0 20px; cursor: pointer; margin-left: 10px; font-weight: bold; border-radius: 5px; transition: 0.2s; }
+        button:active { transform: scale(0.95); opacity: 0.8; }
 
-        #chat::-webkit-scrollbar { width: 3px; }
-        #chat::-webkit-scrollbar-thumb { background: #111; }
+        /* MESAJ STİLLERİ */
+        .msg { margin-bottom: 20px; line-height: 1.5; font-size: 14px; }
+        .user { color: #fff; border-bottom: 1px solid #111; padding-bottom: 8px; opacity: 0.9; }
+        .ai { color: #0f0; border-left: 3px solid #0f0; padding-left: 15px; white-space: pre-wrap; }
+        .status { color: #333; font-size: 11px; margin-bottom: 5px; }
+
+        @keyframes pulse { 0% { opacity: 0.4; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.4; transform: scale(0.95); } }
+        
+        #chat::-webkit-scrollbar { width: 2px; }
+        #chat::-webkit-scrollbar-thumb { background: #0f0; }
     </style>
 </head>
 <body>
 
+    <div id="splash">
+        <img src="omnicore-logo.png" class="splash-logo" alt="OMNICORE">
+        <div class="loader-text">CONNECTING TO OMNICORE V10...</div>
+    </div>
+
     <div class="header">
-        <img src="omnicore-logo.png" alt="OMNICORE V10" class="logo">
-        <div class="dev-info">FOUNDER: ARDA | GLOBAL V10</div>
+        <img src="omnicore-logo.png" alt="OMNICORE V10" class="logo-small">
+        <div class="dev-info">SYSTEM ARCHITECT: ARDA</div>
     </div>
 
     <div id="chat">
-        <div class="status">>> OMNICORE V10 GLOBAL SYSTEM ONLINE</div>
-        <div class="status">>> ARCHITECT: ARDA VERIFIED</div>
+        <div class="status">>> SYSTEM VERSION: 10.0.4 GLOBAL</div>
+        <div class="status">>> WELCOME BACK, ARCHITECT ARDA.</div>
     </div>
 
     <div class="input-area">
-        <input type="text" id="userInput" placeholder="Command..." autofocus onkeypress="if(event.key==='Enter') sendMessage()">
-        <button onclick="sendMessage()">SEND</button>
+        <input type="text" id="userInput" placeholder="Sisteme komut ver..." autofocus onkeypress="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()">GÖNDER</button>
     </div>
 
     <script>
@@ -69,17 +89,34 @@
         const s4 = "29Be3emGVsUaq";
         const KEY = s1 + s2 + s3 + s4;
 
+        // AÇILIŞ EKRANI KONTROLÜ
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splash');
+                splash.style.opacity = '0';
+                setTimeout(() => splash.style.display = 'none', 800);
+            }, 2000); // 2 saniye sonra kapanır
+
+            // HAFIZADAN ESKİ KONUŞMALARI GETİR
+            const savedChat = localStorage.getItem('omnicore_history');
+            if(savedChat) document.getElementById('chat').innerHTML += savedChat;
+        });
+
         let queue = ""; 
         let isProcessing = false;
 
-        // İnsansı Yazma Fonksiyonu
+        // İNSANSI YAZMA EFEKTİ (HIZ AYARI BURADA)
         async function processQueue(element) {
             if (queue.length > 0) {
                 isProcessing = true;
                 element.innerHTML += queue.charAt(0);
                 queue = queue.substring(1);
                 document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
-                setTimeout(() => processQueue(element), 20); // 20ms yazım hızı
+                
+                // HER HARFTE HAFIZAYA KAYDET
+                localStorage.setItem('omnicore_history', document.getElementById('chat').innerHTML);
+                
+                setTimeout(() => processQueue(element), 15); // 15ms hızı
             } else {
                 isProcessing = false;
             }
@@ -91,7 +128,14 @@
             const text = input.value.trim();
             if (!text) return;
 
-            chat.innerHTML += `<div class="msg user"><b>USER ></b> ${text}</div>`;
+            // TEMİZLEME KOMUTU
+            if(text.toLowerCase() === "clear") {
+                localStorage.removeItem('omnicore_history');
+                location.reload();
+                return;
+            }
+
+            chat.innerHTML += `<div class="msg user"><b>SİZ ></b> ${text}</div>`;
             input.value = "";
 
             const aiMsgDiv = document.createElement("div");
@@ -107,7 +151,7 @@
                     body: JSON.stringify({
                         model: "llama-3.3-70b-versatile",
                         messages: [
-                            { role: "system", content: "Adın OMNICORE V10. Kurucun Arda. Tüm dillerde profesyonel cevap ver." },
+                            { role: "system", content: "Sen OMNICORE V10'sun. Kurucun Arda. Sen zeki, profesyonel bir terminal yapay zekasısın. Hafızan var, geçmişi hatırlarsın." },
                             { role: "user", content: text }
                         ],
                         stream: true 
@@ -140,12 +184,9 @@
                     }
                 }
             } catch (e) {
-                contentSpan.innerHTML = "CONNECTION ERROR";
+                contentSpan.innerHTML = "!! BAĞLANTI HATASI !!";
             }
         }
     </script>
 </body>
 </html>
-
-    
-                    
