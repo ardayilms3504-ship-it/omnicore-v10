@@ -2,86 +2,32 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AAL E-Okul Projesi | Apocreator24</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AAL E-Okul | Apocreator24</title>
     <style>
-        body {
-            margin: 0; padding: 0;
-            background-color: #000;
-            color: #fff;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; overflow: hidden;
-        }
-
-        /* Giriş Animasyonu */
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; display: flex; justify-content: center; align-items: center;
-            z-index: 999; transition: 0.5s;
-        }
-
-        .aal-logo {
-            font-size: 80px; font-weight: 900;
-            color: #007bff;
-            border: 5px solid #007bff;
-            padding: 15px 40px;
-            border-radius: 20px;
-            text-shadow: 0 0 30px #007bff;
-            box-shadow: 0 0 20px #007bff, inset 0 0 20px #007bff;
-            animation: aal-glow 2.5s infinite ease-in-out;
-        }
-
-        @keyframes aal-glow {
-            0%, 100% { transform: scale(0.95); opacity: 0.6; box-shadow: 0 0 10px #007bff; }
-            50% { transform: scale(1); opacity: 1; box-shadow: 0 0 50px #007bff, inset 0 0 30px #007bff; }
-        }
-
-        .container {
-            background: #111; padding: 30px; border-radius: 20px;
-            border: 1px solid #222; width: 90%; max-width: 400px;
-            display: none; box-shadow: 0 0 20px rgba(0, 123, 255, 0.1);
-            position: relative; z-index: 10;
-        }
-
-        h2 { text-align: center; color: #007bff; margin-bottom: 15px; }
-
-        input, select {
-            width: 100%; padding: 12px; margin: 10px 0;
-            background: #1a1a1a; border: 1px solid #333;
-            color: #fff; border-radius: 10px; box-sizing: border-box;
-        }
-
-        input:focus { border-color: #007bff; outline: none; box-shadow: 0 0 10px #007bff; }
-
-        button {
-            width: 100%; padding: 12px; background: #007bff;
-            border: none; color: white; font-weight: bold;
-            border-radius: 10px; cursor: pointer; margin-top: 10px;
-        }
-
-        /* Hesaplama Paneli */
-        .stats-box {
-            background: #1a1a1a; padding: 15px; border-radius: 12px;
-            margin-bottom: 15px; border-left: 4px solid #007bff;
-            display: flex; justify-content: space-around; font-size: 14px;
-        }
-
-        .stat-val { color: #007bff; font-weight: bold; font-size: 18px; }
-
-        #panel { max-width: 800px; height: 90vh; overflow-y: auto; }
+        body, html { margin: 0; padding: 0; background-color: #000; color: #fff; font-family: 'Segoe UI', sans-serif; height: 100%; width: 100%; overflow: hidden; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        th, td { border: 1px solid #222; padding: 8px; text-align: center; }
-        th { background: #007bff; position: sticky; top: 0; }
-        
-        .n-i { width: 40px; padding: 5px; text-align: center; background: #000; border: 1px solid #333; color: #fff; border-radius: 5px; }
-        .n-i:disabled { border: none; background: transparent; color: #aaa; }
+        /* Neon Splash */
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 1s; }
+        .aal-logo { font-size: 60px; font-weight: 900; color: #fff; border: 4px solid #fff; padding: 10px 30px; border-radius: 20px; text-shadow: 0 0 15px #007bff; box-shadow: 0 0 20px #007bff; animation: flicker 3s infinite; }
+        @keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
-        .dev-footer {
-            position: fixed; bottom: 10px; width: 100%; text-align: center;
-            color: #444; font-size: 10px; letter-spacing: 2px;
-        }
+        .container { background: #111; padding: 25px; border-radius: 20px; border: 1px solid #222; width: 90%; max-width: 400px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; }
+        h2 { text-align: center; color: #007bff; margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 10px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #007bff; border: none; color: white; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 10px; }
+        
+        /* Panel Tasarımları */
+        #main-panel, #teacher-panel { width: 95%; max-width: 600px; height: 80vh; overflow-y: auto; }
+        .student-card { background: #1a1a1a; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .student-card:hover { border-color: #007bff; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #333; padding: 10px; text-align: center; font-size: 14px; }
+        th { background: #007bff; }
+        .readonly-input { background: transparent; border: none; color: #007bff; text-align: center; width: 40px; font-weight: bold; }
+
+        .dev-footer { position: fixed; bottom: 10px; width: 100%; text-align: center; color: #444; font-size: 10px; letter-spacing: 1px; }
         .dev-footer span { color: #007bff; }
     </style>
 </head>
@@ -89,175 +35,130 @@
 
     <div id="splash-screen"><div class="aal-logo">AAL</div></div>
 
-    <div class="container" id="auth-container">
-        <div id="register-box">
-            <h2>Öğrenci Kayıt</h2>
-            <input type="email" id="reg-email" placeholder="E-posta" autocomplete="email">
-            <input type="text" id="reg-name" placeholder="Ad Soyad">
-            <input type="text" id="reg-class" placeholder="Sınıf/Şube">
-            <button onclick="kaydet()">Kaydol</button>
-            <p style="text-align:center; font-size:12px; cursor:pointer; color:#666;" onclick="toggleUI()">Giriş Yap</p>
-        </div>
-        <div id="login-box" style="display:none;">
-            <h2>E-Okul Giriş</h2>
-            <input type="text" id="login-id" placeholder="E-posta veya 'ogretmen'">
-            <button onclick="girisYap()">Sisteme Gir</button>
-            <p style="text-align:center; font-size:12px; cursor:pointer; color:#666;" onclick="toggleUI()">Kayıt Ol</p>
-        </div>
-    </div>
-
-    <div id="teacher-panel" class="container" style="max-width: 500px;">
-        <h2>Öğretmen Paneli</h2>
-        <div id="student-list-container"></div>
-        <button onclick="location.reload()" style="background:#333;">Çıkış</button>
-    </div>
-
-    <div id="panel" class="container">
-        <h2 id="student-title">Not Bilgisi</h2>
-        <div class="stats-box">
-            <div>Ortalama: <br><span id="genel-ort" class="stat-val">0.00</span></div>
-            <div>Belge: <br><span id="belge-durum" class="stat-val">-</span></div>
-        </div>
-        <select id="term-select" onchange="yenileTablo()">
-            <option value="t1">1. Dönem</option>
-            <option value="t2">2. Dönem</option>
+    <div id="auth-panel" class="container">
+        <h2 id="auth-title">Sisteme Kayıt</h2>
+        <input type="text" id="name" placeholder="Ad Soyad">
+        <input type="email" id="email" placeholder="E-posta">
+        <select id="role">
+            <option value="student">Öğrenci</option>
+            <option value="teacher">Öğretmen</option>
         </select>
+        <button onclick="handleAuth()">Devam Et</button>
+        <p style="text-align:center; font-size:12px; color:#555; margin-top:15px;">Kayıt verileri cihazınıza kaydedilir.</p>
+    </div>
+
+    <div id="teacher-panel" class="container">
+        <h2>Öğretmen Paneli</h2>
+        <p style="font-size:12px; color:#aaa;">Öğrenci seçerek notlarını güncelleyebilirsiniz:</p>
+        <div id="student-list"></div>
+        <button onclick="location.reload()" style="background:#333;">Çıkış Yap</button>
+    </div>
+
+    <div id="main-panel" class="container">
+        <h2 id="user-welcome">Hoş Geldin</h2>
         <table>
-            <thead>
-                <tr><th>Ders</th><th>Saat</th><th>1.Y</th><th>2.Y</th><th>1.P</th><th>2.P</th></tr>
-            </thead>
-            <tbody id="grade-body"></tbody>
+            <thead><tr><th>Ders</th><th>1. Sınav</th><th>2. Sınav</th></tr></thead>
+            <tbody id="grade-table"></tbody>
         </table>
-        <div id="teacher-controls" style="display:none;">
-            <button onclick="notlariKaydet()">Değişiklikleri Kaydet</button>
-        </div>
-        <button onclick="geri()" style="background:#333; margin-top:10px;">Geri</button>
+        <div id="result-area" style="margin-top:20px; text-align:center; font-weight:bold; color:#007bff;"></div>
+        <button onclick="location.reload()" style="background:#333; margin-top:20px;">Çıkış Yap</button>
     </div>
 
     <div class="dev-footer">DEVELOPED BY <span>APOCREATOR24</span></div>
 
     <script>
-        const dersVerisi = [
-            {n: "Matematik", s: 6}, {n: "Edebiyat", s: 5}, {n: "İngilizce", s: 4},
-            {n: "Fizik", s: 2}, {n: "Kimya", s: 2}, {n: "Biyoloji", s: 2},
-            {n: "Tarih", s: 2}, {n: "Coğrafya", s: 2}, {n: "Felsefe", s: 2},
-            {n: "Din", s: 2}, {n: "Beden", s: 2}, {n: "Görsel/Müzik", s: 2}
-        ];
-        let currentStudent = null;
-        let isTeacherMode = false;
+        let currentUser = null;
+        const lessons = ["Matematik", "Fizik", "Edebiyat", "Kimya", "Biyoloji"];
 
+        // Splash ekranı
         setTimeout(() => {
             document.getElementById('splash-screen').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('splash-screen').style.display = 'none';
-                document.getElementById('auth-container').style.display = 'block';
-            }, 500);
-        }, 3000);
+                document.getElementById('auth-panel').style.display = 'block';
+            }, 1000);
+        }, 2500);
 
-        function toggleUI() {
-            document.getElementById('register-box').style.display = document.getElementById('register-box').style.display === 'none' ? 'block' : 'none';
-            document.getElementById('login-box').style.display = document.getElementById('login-box').style.display === 'none' ? 'block' : 'none';
-        }
+        function handleAuth() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const role = document.getElementById('role').value;
 
-        function kaydet() {
-            const e = document.getElementById('reg-email').value;
-            const n = document.getElementById('reg-name').value;
-            const c = document.getElementById('reg-class').value;
-            if(!e.includes('@') || !n) return alert("Bilgileri kontrol et!");
-            
-            let ss = JSON.parse(localStorage.getItem('aal_db') || "[]");
-            if(ss.length >= 20) return alert("Sınıf dolu!");
-            
-            ss.push({ email: e, name: n, class: c, grades: { t1: {}, t2: {} } });
-            localStorage.setItem('aal_db', JSON.stringify(ss));
-            alert("Kayıt başarılı!"); toggleUI();
-        }
+            if(!name || !email) return alert("Lütfen alanları doldurun.");
 
-        function girisYap() {
-            const id = document.getElementById('login-id').value;
-            if(id === "ogretmen") {
-                isTeacherMode = true;
-                showTeacherPanel();
+            currentUser = { name, email, role, grades: {} };
+            lessons.forEach(l => currentUser.grades[l] = { s1: 0, s2: 0 });
+
+            if(role === 'student') {
+                let students = JSON.parse(localStorage.getItem('students') || '[]');
+                if(!students.find(s => s.email === email)) {
+                    students.push(currentUser);
+                    localStorage.setItem('students', JSON.stringify(students));
+                } else {
+                    currentUser = students.find(s => s.email === email);
+                }
+                showStudentPanel();
             } else {
-                let ss = JSON.parse(localStorage.getItem('aal_db') || "[]");
-                let s = ss.find(x => x.email === id);
-                if(s) { isTeacherMode = false; showStudentPanel(s); }
-                else alert("Bulunamadı!");
+                showTeacherPanel();
             }
         }
 
-        function showTeacherPanel() {
-            document.getElementById('auth-container').style.display = 'none';
-            document.getElementById('teacher-panel').style.display = 'block';
-            const cont = document.getElementById('student-list-container');
-            cont.innerHTML = "";
-            JSON.parse(localStorage.getItem('aal_db') || "[]").forEach(s => {
-                let d = document.createElement('div');
-                d.className = "student-item"; d.style = "background:#222; padding:10px; margin:5px; border-radius:8px; cursor:pointer";
-                d.innerText = s.name + " - " + s.class;
-                d.onclick = () => showStudentPanel(s);
-                cont.appendChild(d);
-            });
-        }
-
-        function showStudentPanel(s) {
-            currentStudent = s;
-            document.getElementById('auth-container').style.display = 'none';
-            document.getElementById('teacher-panel').style.display = 'none';
-            document.getElementById('panel').style.display = 'block';
-            document.getElementById('student-title').innerText = s.name;
-            document.getElementById('teacher-controls').style.display = isTeacherMode ? 'block' : 'none';
-            yenileTablo();
-        }
-
-        function yenileTablo() {
-            const term = document.getElementById('term-select').value;
-            const body = document.getElementById('grade-body');
-            body.innerHTML = "";
-            let tAP = 0, tS = 0;
-
-            dersVerisi.forEach(d => {
-                const g = currentStudent.grades[term][d.n] || {y1:'', y2:'', p1:'', p2:''};
-                let nlar = [g.y1, g.y2, g.p1, g.p2].filter(x => x !== '');
-                let ort = nlar.length > 0 ? nlar.reduce((a,b)=>parseFloat(a)+parseFloat(b))/nlar.length : 0;
-                
-                if(ort > 0) { tAP += ort * d.s; tS += d.s; }
-
-                body.innerHTML += `<tr>
-                    <td>${d.n}</td><td>${d.s}</td>
-                    <td><input type="number" class="n-i" data-d="${d.n}" data-t="y1" value="${g.y1}" ${!isTeacherMode?'disabled':''}></td>
-                    <td><input type="number" class="n-i" data-d="${d.n}" data-t="y2" value="${g.y2}" ${!isTeacherMode?'disabled':''}></td>
-                    <td><input type="number" class="n-i" data-d="${d.n}" data-t="p1" value="${g.p1}" ${!isTeacherMode?'disabled':''}></td>
-                    <td><input type="number" class="n-i" data-d="${d.n}" data-t="p2" value="${g.p2}" ${!isTeacherMode?'disabled':''}></td>
-                </tr>`;
-            });
-
-            let gOrt = tS > 0 ? tAP / tS : 0;
-            document.getElementById('genel-ort').innerText = gOrt.toFixed(2);
-            document.getElementById('belge-durum').innerText = gOrt >= 85 ? "TAKDİR" : (gOrt >= 70 ? "TEŞEKKÜR" : "KALDI");
-        }
-
-        function notlariKaydet() {
-            const term = document.getElementById('term-select').value;
-            let ss = JSON.parse(localStorage.getItem('aal_db') || "[]");
-            let sIdx = ss.findIndex(x => x.email === currentStudent.email);
+        function showStudentPanel() {
+            document.getElementById('auth-panel').style.display = 'none';
+            document.getElementById('main-panel').style.display = 'block';
+            document.getElementById('user-welcome').innerText = "Merhaba, " + currentUser.name;
             
-            document.querySelectorAll('.n-i').forEach(i => {
-                const d = i.dataset.d, t = i.dataset.t;
-                if(!ss[sIdx].grades[term][d]) ss[sIdx].grades[term][d] = {};
-                ss[sIdx].grades[term][d][t] = i.value;
+            const tbody = document.getElementById('grade-table');
+            tbody.innerHTML = "";
+            lessons.forEach(l => {
+                tbody.innerHTML += `<tr><td>${l}</td><td>${currentUser.grades[l].s1}</td><td>${currentUser.grades[l].s2}</td></tr>`;
             });
-
-            localStorage.setItem('aal_db', JSON.stringify(ss));
-            currentStudent = ss[sIdx];
-            alert("Kaydedildi!");
-            yenileTablo();
+            calculateResult();
         }
 
-        function geri() {
-            if(isTeacherMode) showTeacherPanel();
-            else location.reload();
+        function showTeacherPanel() {
+            document.getElementById('auth-panel').style.display = 'none';
+            document.getElementById('teacher-panel').style.display = 'block';
+            renderStudentList();
+        }
+
+        function renderStudentList() {
+            const list = document.getElementById('student-list');
+            const students = JSON.parse(localStorage.getItem('students') || '[]');
+            list.innerHTML = students.length ? "" : "<p>Henüz kayıtlı öğrenci yok.</p>";
+            
+            students.forEach((s, index) => {
+                list.innerHTML += `
+                    <div class="student-card" onclick="editStudent(${index})">
+                        <span>${s.name} (${s.email})</span>
+                        <span style="color:#007bff;">Not Ver ></span>
+                    </div>`;
+            });
+        }
+
+        function editStudent(index) {
+            let students = JSON.parse(localStorage.getItem('students'));
+            let s = students[index];
+            
+            let newGrades = prompt(`${s.name} için Matematik 1. Sınav notunu girin:`, s.grades["Matematik"].s1);
+            if(newGrades !== null) {
+                s.grades["Matematik"].s1 = parseInt(newGrades);
+                students[index] = s;
+                localStorage.setItem('students', JSON.stringify(students));
+                alert("Not güncellendi!");
+                renderStudentList();
+            }
+        }
+
+        function calculateResult() {
+            let total = 0;
+            lessons.forEach(l => {
+                total += (currentUser.grades[l].s1 + currentUser.grades[l].s2) / 2;
+            });
+            let avg = total / lessons.length;
+            let status = avg >= 85 ? "Takdir Belgesi" : (avg >= 70 ? "Teşekkür Belgesi" : "Geçti");
+            document.getElementById('result-area').innerText = `Ortalama: ${avg.toFixed(2)} - Durum: ${status}`;
         }
     </script>
 </body>
-    </html>
+</html>                        
