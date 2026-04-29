@@ -2,10 +2,31 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>AAL E-Okul</title>
-<style>
-body { font-family: Arial; background:#f2f2f2; margin:0; }
+<title>E-Okul Mini</title>
 
+<style>
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #f2f2f2;
+}
+
+/* SPLASH */
+#splash-screen {
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:#111;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:24px;
+    transition: opacity 1.2s ease;
+    z-index:999;
+}
+
+/* PANELS */
 #auth-container, #panel, #teacher-panel {
     display:none;
     padding:20px;
@@ -13,51 +34,46 @@ body { font-family: Arial; background:#f2f2f2; margin:0; }
 
 .box {
     background:white;
-    padding:20px;
-    margin:50px auto;
     width:300px;
+    margin:50px auto;
+    padding:20px;
     border-radius:10px;
     box-shadow:0 0 10px rgba(0,0,0,0.2);
 }
 
-input {
-    width:100%;
-    padding:8px;
-    margin:5px 0;
-}
-
-button {
+input, button {
     width:100%;
     padding:10px;
-    margin-top:10px;
-    cursor:pointer;
+    margin:5px 0;
 }
-
-h2 { text-align:center; }
 
 #student-list div {
     background:#eee;
-    margin:5px 0;
     padding:10px;
-    border-radius:5px;
+    margin:5px 0;
 }
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN / REGISTER -->
+<!-- SPLASH -->
+<div id="splash-screen">
+    Yükleniyor...
+</div>
+
+<!-- AUTH -->
 <div id="auth-container">
 
     <div class="box" id="login-box">
-        <h2>Giriş Yap</h2>
-        <input id="login-id" placeholder="Email / Öğretmen">
+        <h2>Giriş</h2>
+        <input id="login-id" placeholder="Email / ogretmen">
         <button onclick="girisYap()">Giriş</button>
         <button onclick="toggleUI()">Kayıt Ol</button>
     </div>
 
     <div class="box" id="register-box" style="display:none;">
-        <h2>Kayıt Ol</h2>
+        <h2>Kayıt</h2>
         <input id="reg-email" placeholder="Email">
         <input id="reg-name" placeholder="Ad Soyad">
         <input id="reg-class" placeholder="Sınıf">
@@ -67,14 +83,14 @@ h2 { text-align:center; }
 
 </div>
 
-<!-- ÖĞRENCİ PANEL -->
+<!-- STUDENT -->
 <div id="panel">
     <h2>Öğrenci Paneli</h2>
     <div id="student-info"></div>
     <button onclick="cikis()">Çıkış</button>
 </div>
 
-<!-- ÖĞRETMEN PANEL -->
+<!-- TEACHER -->
 <div id="teacher-panel">
     <h2>Öğretmen Paneli</h2>
     <div id="student-list"></div>
@@ -89,14 +105,30 @@ const curriculum = [
 
 let currentUser = null;
 
-document.getElementById("auth-container").style.display = "block";
+/* SPLASH FIX */
+window.addEventListener("load", () => {
+    const splash = document.getElementById("splash-screen");
+    const auth = document.getElementById("auth-container");
+
+    setTimeout(() => {
+        splash.style.opacity = "0";
+
+        setTimeout(() => {
+            splash.style.display = "none";
+            auth.style.display = "block";
+        }, 1200);
+
+    }, 6000); // 🔥 SPLASH UZUNLUK
+});
 
 /* TOGGLE */
 function toggleUI(){
     const reg = document.getElementById("register-box");
     const log = document.getElementById("login-box");
 
-    if(reg.style.display === "none"){
+    const hidden = getComputedStyle(reg).display === "none";
+
+    if(hidden){
         reg.style.display = "block";
         log.style.display = "none";
     } else {
@@ -119,7 +151,7 @@ function kaydet(){
     let students = JSON.parse(localStorage.getItem("students") || "[]");
 
     if(students.find(s => s.email === email)){
-        alert("Bu email kayıtlı!");
+        alert("Zaten kayıtlı!");
         return;
     }
 
@@ -146,34 +178,27 @@ function girisYap(){
     let id = document.getElementById("login-id").value;
     let students = JSON.parse(localStorage.getItem("students") || "[]");
 
-    /* ÖĞRETMEN */
-    if(id && id.toLowerCase() === "ogretmen"){
+    if(id && id.toLowerCase().trim() === "ogretmen"){
         document.getElementById("auth-container").style.display = "none";
         document.getElementById("teacher-panel").style.display = "block";
         renderList();
         return;
     }
 
-    /* ÖĞRENCİ */
     let found = students.find(s => s.email === id);
 
     if(found){
         currentUser = found;
         document.getElementById("auth-container").style.display = "none";
         document.getElementById("panel").style.display = "block";
-        showStudent();
+
+        document.getElementById("student-info").innerHTML = `
+            <h3>${found.name}</h3>
+            <p>${found.class}</p>
+        `;
     } else {
         alert("Kullanıcı yok!");
     }
-}
-
-/* ÖĞRENCİ PANEL */
-function showStudent(){
-    let div = document.getElementById("student-info");
-    div.innerHTML = `
-        <h3>${currentUser.name}</h3>
-        <p>Sınıf: ${currentUser.class}</p>
-    `;
 }
 
 /* ÖĞRETMEN LİSTE */
@@ -188,7 +213,7 @@ function renderList(){
             <div>
                 <b>${s.name}</b><br>
                 ${s.email}<br>
-                Sınıf: ${s.class}
+                ${s.class}
             </div>
         `;
     });
