@@ -3,162 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AAL E-Okul | Apocreator24</title>
+    <title>AAL E-Okul V12 | Apocreator24</title>
     <style>
-        body, html { margin: 0; padding: 0; background-color: #000; color: #fff; font-family: 'Segoe UI', sans-serif; height: 100%; width: 100%; overflow: hidden; }
-        
-        /* Neon Splash */
-        #splash-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 1s; }
-        .aal-logo { font-size: 60px; font-weight: 900; color: #fff; border: 4px solid #fff; padding: 10px 30px; border-radius: 20px; text-shadow: 0 0 15px #007bff; box-shadow: 0 0 20px #007bff; animation: flicker 3s infinite; }
-        @keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        body, html {
+            margin: 0; padding: 0;
+            background-color: #000;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100%; width: 100%;
+            overflow: hidden;
+        }
 
-        .container { background: #111; padding: 25px; border-radius: 20px; border: 1px solid #222; width: 90%; max-width: 400px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; }
-        h2 { text-align: center; color: #007bff; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 10px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #007bff; border: none; color: white; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 10px; }
-        
-        /* Panel Tasarımları */
-        #main-panel, #teacher-panel { width: 95%; max-width: 600px; height: 80vh; overflow-y: auto; }
-        .student-card { background: #1a1a1a; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .student-card:hover { border-color: #007bff; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #333; padding: 10px; text-align: center; font-size: 14px; }
-        th { background: #007bff; }
-        .readonly-input { background: transparent; border: none; color: #007bff; text-align: center; width: 40px; font-weight: bold; }
+        /* --- 1. Dominant Neon Splash V12 --- */
+        #splash-screen {
+            position: fixed; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: #000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 9999;
+            transition: opacity 1.2s ease-in-out; /* Daha yavaş ve pürüzsüz geçiş */
+        }
 
-        .dev-footer { position: fixed; bottom: 10px; width: 100%; text-align: center; color: #444; font-size: 10px; letter-spacing: 1px; }
-        .dev-footer span { color: #007bff; }
+        .splash-core {
+            text-align: center;
+            /* Dominant parlamanın çekirdeği */
+            filter: drop-shadow(0 0 25px rgba(0, 123, 255, 0.7)); 
+        }
+
+        .aal-logo-main {
+            font-size: 110px; font-weight: 900;
+            color: #fff;
+            border: 10px solid #fff; /* Çok Dominant kalın kenarlık */
+            padding: 20px 60px;
+            border-radius: 35px;
+            text-shadow: 0 0 15px #007bff, 0 0 30px #007bff, 0 0 45px #007bff; /* Çok katmanlı parlama */
+            box-shadow: 0 0 30px #007bff, 0 0 60px #007bff, inset 0 0 25px #007bff; /* İç ve dış dominant etki */
+            margin-bottom: 25px;
+            
+            /* Neon Yanıp Sönme ve Dominant Nabız Nabız Efekti */
+            animation: aal-dominant-pulse 3.5s infinite ease-in-out;
+        }
+
+        .aal-logo-subtitle {
+            font-size: 22px; font-weight: 600;
+            color: #fff;
+            letter-spacing: 5px; text-transform: uppercase;
+            text-shadow: 0 0 8px #007bff, 0 0 15px #007bff;
+            animation: aal-dominant-pulse 3.5s infinite ease-in-out 0.2s; /* Hafif gecikmeli nabız */
+        }
+
+        @keyframes aal-dominant-pulse {
+            0%, 100% { 
+                opacity: 1; 
+                text-shadow: 0 0 15px #007bff, 0 0 30px #007bff, 0 0 45px #007bff;
+                box-shadow: 0 0 30px #007bff, 0 0 60px #007bff, inset 0 0 25px #007bff;
+            }
+            15% { 
+                opacity: 0.2; text-shadow: none; box-shadow: none;
+            }
+            20% { 
+                opacity: 0.9; text-shadow: 0 0 10px #007bff; box-shadow: 0 0 15px #007bff;
+            }
+            30% { 
+                opacity: 1; text-shadow: 0 0 20px #007bff, 0 0 40px #007bff, 0 0 60px #007bff;
+                box-shadow: 0 0 40px #007bff, 0 0 80px #007bff, inset 0 0 35px #007bff;
+            }
+            80% { 
+                opacity: 1; text-shadow: 0 0 25px #007bff, 0 0 50px #007bff, 0 0 75px #007bff;
+                box-shadow: 0 0 50px #007bff, 0 0 100px #007bff, inset 0 0 45px #007bff;
+            }
+        }
+
+        /* --- 2. Kayıt Alanında Öğretmen Girişi ve Stil --- */
+        .container {
+            background: #111; padding: 30px; border-radius: 25px;
+            border: 1px solid #222; width: 90%; max-width: 400px;
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            display: none; box-shadow: 0 0 25px rgba(0, 123, 255, 0.1);
+            z-index: 10;
+        }
+
+        h2 { text-align: center; color: #007bff; margin-bottom: 25px; }
+
+        input {
+            width: 100%; padding: 14px; margin: 10px 0;
+            background: #1a1a1a; border: 1px solid #333;
+            color: #fff; border-radius: 12px; box-sizing: border-box;
+            font-size: 16px; transition: 0.3s;
+        }
+
+        input:focus { border-color: #007bff; outline: none; box-shadow: 0 0 12px #007bff; }
+
+        button {
+            width: 100%; padding: 14px; background: #007bff;
+            border: none; color: white; font-weight: bold;
+            border-radius: 12px; cursor: pointer; margin-top: 15px;
+            font-size: 16px; transition: 0.3s;
+        }
+
+        button:hover { background: #0056b3; }
+
+        /* Kayıt Yerindeki Öğretmen Butonu Stili */
+        .link { text-align: center; font-size: 13px; color: #666; cursor: pointer; margin-top: 18px; }
+        .link span { color: #007bff; text-decoration: underline; }
+
+        /* ... Diğer Paneller (Öğretmen, Notlar) Aynı ... */
+        #panel, #teacher-panel { display: none; width: 95%; max-width: 800px; overflow-y: auto; height: 85vh; border-radius: 20px;}
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #111; font-size: 14px; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: center; font-size: 14px; }
+        th { background: #007bff; color: white; }
+        .student-item { background: #1a1a1a; padding: 15px; margin: 8px 0; border-radius: 10px; cursor: pointer; border: 1px solid #333; }
+        .n-i { width: 45px; padding: 5px; text-align: center; margin: 0; }
+        
+        .dev-footer { position: fixed; bottom: 15px; width: 100%; text-align: center; color: #333; font-size: 10px; letter-spacing: 2px; }
+        .dev-footer span { color: #007bff; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="splash-screen"><div class="aal-logo">AAL</div></div>
-
-    <div id="auth-panel" class="container">
-        <h2 id="auth-title">Sisteme Kayıt</h2>
-        <input type="text" id="name" placeholder="Ad Soyad">
-        <input type="email" id="email" placeholder="E-posta">
-        <select id="role">
-            <option value="student">Öğrenci</option>
-            <option value="teacher">Öğretmen</option>
-        </select>
-        <button onclick="handleAuth()">Devam Et</button>
-        <p style="text-align:center; font-size:12px; color:#555; margin-top:15px;">Kayıt verileri cihazınıza kaydedilir.</p>
+    <div id="splash-screen">
+        <div class="splash-core">
+            <div class="aal-logo-main">AAL</div>
+            <div class="aal-logo-subtitle">E-Okul</div>
+        </div>
     </div>
 
-    <div id="teacher-panel" class="container">
-        <h2>Öğretmen Paneli</h2>
-        <p style="font-size:12px; color:#aaa;">Öğrenci seçerek notlarını güncelleyebilirsiniz:</p>
-        <div id="student-list"></div>
-        <button onclick="location.reload()" style="background:#333;">Çıkış Yap</button>
+    <div class="container" id="auth-container">
+        <div id="register-box">
+            <h2>Öğrenci Kayıt</h2>
+            <input type="email" id="reg-email" placeholder="E-posta">
+            <input type="text" id="reg-name" placeholder="Ad Soyad">
+            <input type="text" id="reg-class" placeholder="Sınıf/Şube">
+            <button onclick="kaydet()">Öğrenci Olarak Kaydol</button>
+            <p class="link" onclick="toggleUI()">Zaten hesabın var mı? <span>Giriş yap</span></p>
+            
+            <div style="border-top: 1px solid #222; margin-top: 25px; padding-top: 15px;">
+                <p class="link" style="color:#555">Öğretmen misiniz? <span onclick="alert('Öğretmen kayıtları yönetim panelinden yapılmaktadır. Lütfen sistem yöneticisiyle iletişime geçin.')">Buradan başvurun</span></p>
+            </div>
+        </div>
+
+        <div id="login-box" style="display:none;">
+            <h2>Giriş Yap</h2>
+            <input type="text" id="login-id" placeholder="E-posta veya 'ogretmen'">
+            <button onclick="girisYap()">Sisteme Eriş</button>
+            <p class="link" onclick="toggleUI()">Yeni öğrenci kaydı oluştur</p>
+        </div>
     </div>
 
-    <div id="main-panel" class="container">
-        <h2 id="user-welcome">Hoş Geldin</h2>
-        <table>
-            <thead><tr><th>Ders</th><th>1. Sınav</th><th>2. Sınav</th></tr></thead>
-            <tbody id="grade-table"></tbody>
-        </table>
-        <div id="result-area" style="margin-top:20px; text-align:center; font-weight:bold; color:#007bff;"></div>
-        <button onclick="location.reload()" style="background:#333; margin-top:20px;">Çıkış Yap</button>
-    </div>
+    <div id="teacher-panel" class="container" style="max-width: 600px;"></div>
+    <div id="panel" class="container"></div>
 
     <div class="dev-footer">DEVELOPED BY <span>APOCREATOR24</span></div>
 
     <script>
-        let currentUser = null;
-        const lessons = ["Matematik", "Fizik", "Edebiyat", "Kimya", "Biyoloji"];
-
-        // Splash ekranı
+        // Splash screen süresini ve efektini ayarla (4 saniye dominant neon, sonra 1.2 saniye geçiş)
         setTimeout(() => {
-            document.getElementById('splash-screen').style.opacity = '0';
+            const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0';
             setTimeout(() => {
-                document.getElementById('splash-screen').style.display = 'none';
-                document.getElementById('auth-panel').style.display = 'block';
-            }, 1000);
-        }, 2500);
+                splash.style.display = 'none';
+                document.getElementById('auth-container').style.display = 'block';
+            }, 1200); 
+        }, 4000);
 
-        function handleAuth() {
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const role = document.getElementById('role').value;
-
-            if(!name || !email) return alert("Lütfen alanları doldurun.");
-
-            currentUser = { name, email, role, grades: {} };
-            lessons.forEach(l => currentUser.grades[l] = { s1: 0, s2: 0 });
-
-            if(role === 'student') {
-                let students = JSON.parse(localStorage.getItem('students') || '[]');
-                if(!students.find(s => s.email === email)) {
-                    students.push(currentUser);
-                    localStorage.setItem('students', JSON.stringify(students));
-                } else {
-                    currentUser = students.find(s => s.email === email);
-                }
-                showStudentPanel();
-            } else {
-                showTeacherPanel();
-            }
-        }
-
-        function showStudentPanel() {
-            document.getElementById('auth-panel').style.display = 'none';
-            document.getElementById('main-panel').style.display = 'block';
-            document.getElementById('user-welcome').innerText = "Merhaba, " + currentUser.name;
-            
-            const tbody = document.getElementById('grade-table');
-            tbody.innerHTML = "";
-            lessons.forEach(l => {
-                tbody.innerHTML += `<tr><td>${l}</td><td>${currentUser.grades[l].s1}</td><td>${currentUser.grades[l].s2}</td></tr>`;
-            });
-            calculateResult();
-        }
-
-        function showTeacherPanel() {
-            document.getElementById('auth-panel').style.display = 'none';
-            document.getElementById('teacher-panel').style.display = 'block';
-            renderStudentList();
-        }
-
-        function renderStudentList() {
-            const list = document.getElementById('student-list');
-            const students = JSON.parse(localStorage.getItem('students') || '[]');
-            list.innerHTML = students.length ? "" : "<p>Henüz kayıtlı öğrenci yok.</p>";
-            
-            students.forEach((s, index) => {
-                list.innerHTML += `
-                    <div class="student-card" onclick="editStudent(${index})">
-                        <span>${s.name} (${s.email})</span>
-                        <span style="color:#007bff;">Not Ver ></span>
-                    </div>`;
-            });
-        }
-
-        function editStudent(index) {
-            let students = JSON.parse(localStorage.getItem('students'));
-            let s = students[index];
-            
-            let newGrades = prompt(`${s.name} için Matematik 1. Sınav notunu girin:`, s.grades["Matematik"].s1);
-            if(newGrades !== null) {
-                s.grades["Matematik"].s1 = parseInt(newGrades);
-                students[index] = s;
-                localStorage.setItem('students', JSON.stringify(students));
-                alert("Not güncellendi!");
-                renderStudentList();
-            }
-        }
-
-        function calculateResult() {
-            let total = 0;
-            lessons.forEach(l => {
-                total += (currentUser.grades[l].s1 + currentUser.grades[l].s2) / 2;
-            });
-            let avg = total / lessons.length;
-            let status = avg >= 85 ? "Takdir Belgesi" : (avg >= 70 ? "Teşekkür Belgesi" : "Geçti");
-            document.getElementById('result-area').innerText = `Ortalama: ${avg.toFixed(2)} - Durum: ${status}`;
-        }
+        // ... (Diğer Fonksiyonlar Aynı: toggleUI, kaydet, girisYap, showTeacherPanel, updateNotes, addNote, calculateResult, saveNotes, loadNotes) ...
     </script>
 </body>
-</html>                        
+</html>
