@@ -1,91 +1,204 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>AAL E-Okul</title>
+<style>
+body { font-family: Arial; background:#f2f2f2; margin:0; }
+
+#auth-container, #panel, #teacher-panel {
+    display:none;
+    padding:20px;
+}
+
+.box {
+    background:white;
+    padding:20px;
+    margin:50px auto;
+    width:300px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+input {
+    width:100%;
+    padding:8px;
+    margin:5px 0;
+}
+
+button {
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    cursor:pointer;
+}
+
+h2 { text-align:center; }
+
+#student-list div {
+    background:#eee;
+    margin:5px 0;
+    padding:10px;
+    border-radius:5px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN / REGISTER -->
+<div id="auth-container">
+
+    <div class="box" id="login-box">
+        <h2>Giriş Yap</h2>
+        <input id="login-id" placeholder="Email / Öğretmen">
+        <button onclick="girisYap()">Giriş</button>
+        <button onclick="toggleUI()">Kayıt Ol</button>
+    </div>
+
+    <div class="box" id="register-box" style="display:none;">
+        <h2>Kayıt Ol</h2>
+        <input id="reg-email" placeholder="Email">
+        <input id="reg-name" placeholder="Ad Soyad">
+        <input id="reg-class" placeholder="Sınıf">
+        <button onclick="kaydet()">Kaydol</button>
+        <button onclick="toggleUI()">Geri</button>
+    </div>
+
+</div>
+
+<!-- ÖĞRENCİ PANEL -->
+<div id="panel">
+    <h2>Öğrenci Paneli</h2>
+    <div id="student-info"></div>
+    <button onclick="cikis()">Çıkış</button>
+</div>
+
+<!-- ÖĞRETMEN PANEL -->
+<div id="teacher-panel">
+    <h2>Öğretmen Paneli</h2>
+    <div id="student-list"></div>
+    <button onclick="cikis()">Çıkış</button>
+</div>
+
+<script>
 const curriculum = [
-            { name: "Matematik", hours: 6 }, { name: "Türk Dili ve Ed.", hours: 5 },
-            { name: "Fizik", hours: 2 }, { name: "Kimya", hours: 2 },
-            { name: "Biyoloji", hours: 2 }, { name: "Felsefe", hours: 2 },
-            { name: "Coğrafya", hours: 2 }, { name: "Tarih", hours: 2 },
-            { name: "Din Kültürü", hours: 2 }, { name: "İngilizce", hours: 2 },
-            { name: "Beden Eğitimi", hours: 2 }, { name: "Görsel/Müzik", hours: 2 },
-            { name: "T. Düşünce Tarihi", hours: 2 }, { name: "T. Dünyası Coğ.", hours: 2 }
-        ];
+    { name:"Matematik" }, { name:"Türkçe" },
+    { name:"Fizik" }, { name:"Kimya" }
+];
 
-        let currentUser = null;
+let currentUser = null;
 
-        // Splash ekranı
-        setTimeout(() => {
-            const splash = document.getElementById('splash-screen');
-            if(splash) {
-                splash.style.opacity = '0';
-                setTimeout(() => {
-                    splash.style.display = 'none';
-                    document.getElementById('auth-container').style.display = 'block';
-                }, 1200);
-            }
-        }, 4000);
+document.getElementById("auth-container").style.display = "block";
 
-        function toggleUI() {
-            const reg = document.getElementById('register-box');
-            const log = document.getElementById('login-box');
-            if(reg.style.display === 'none') {
-                reg.style.display = 'block';
-                log.style.display = 'none';
-            } else {
-                reg.style.display = 'none';
-                log.style.display = 'block';
-            }
-        }
+/* TOGGLE */
+function toggleUI(){
+    const reg = document.getElementById("register-box");
+    const log = document.getElementById("login-box");
 
-        function kaydet() {
-            const email = document.getElementById('reg-email').value;
-            const name = document.getElementById('reg-name').value;
-            const classInfo = document.getElementById('reg-class').value;
+    if(reg.style.display === "none"){
+        reg.style.display = "block";
+        log.style.display = "none";
+    } else {
+        reg.style.display = "none";
+        log.style.display = "block";
+    }
+}
 
-            if(!email || !name) {
-                alert("Lütfen tüm alanları doldurun!");
-                return;
-            }
+/* KAYIT */
+function kaydet(){
+    let email = document.getElementById("reg-email").value;
+    let name = document.getElementById("reg-name").value;
+    let cls = document.getElementById("reg-class").value;
 
-            let students = JSON.parse(localStorage.getItem('students') || '[]');
-            
-            if(students.find(s => s.email === email)) {
-                alert("Bu e-posta zaten kayıtlı!");
-                return;
-            }
+    if(!email || !name){
+        alert("Boş bırakma!");
+        return;
+    }
 
-            const newUser = {
-                email: email,
-                name: name,
-                class: classInfo,
-                grades: {}
-            };
+    let students = JSON.parse(localStorage.getItem("students") || "[]");
 
-            curriculum.forEach(d => newUser.grades[d.name] = { s1: 0, s2: 0 });
-            
-            students.push(newUser);
-            localStorage.setItem('students', JSON.stringify(students));
-            alert("Kayıt başarıyla oluşturuldu! Giriş yapabilirsiniz.");
-            toggleUI();
-        }
+    if(students.find(s => s.email === email)){
+        alert("Bu email kayıtlı!");
+        return;
+    }
 
-        function girisYap() {
-            const id = document.getElementById('login-id').value;
-            let students = JSON.parse(localStorage.getItem('students') || '[]');
+    let newUser = {
+        email,
+        name,
+        class: cls,
+        grades: {}
+    };
 
-            // Öğretmen Girişi Kontrolü
-            if(id.toLowerCase() === 'ogretmen') {
-                document.getElementById('auth-container').style.display = 'none';
-                document.getElementById('teacher-panel').style.display = 'block';
-                renderList();
-                return;
-            }
+    curriculum.forEach(c=>{
+        newUser.grades[c.name] = { s1:0, s2:0 };
+    });
 
-            // Öğrenci Girişi Kontrolü
-            const found = students.find(s => s.email === id);
-            if(found) {
-                currentUser = found;
-                document.getElementById('auth-container').style.display = 'none';
-                document.getElementById('panel').style.display = 'block';
-                showStudentPanel();
-            } else {
-                alert("Kullanıcı bulunamadı veya hatalı giriş!");
-            }
-        }
+    students.push(newUser);
+    localStorage.setItem("students", JSON.stringify(students));
+
+    alert("Kayıt başarılı!");
+    toggleUI();
+}
+
+/* GİRİŞ */
+function girisYap(){
+    let id = document.getElementById("login-id").value;
+    let students = JSON.parse(localStorage.getItem("students") || "[]");
+
+    /* ÖĞRETMEN */
+    if(id && id.toLowerCase() === "ogretmen"){
+        document.getElementById("auth-container").style.display = "none";
+        document.getElementById("teacher-panel").style.display = "block";
+        renderList();
+        return;
+    }
+
+    /* ÖĞRENCİ */
+    let found = students.find(s => s.email === id);
+
+    if(found){
+        currentUser = found;
+        document.getElementById("auth-container").style.display = "none";
+        document.getElementById("panel").style.display = "block";
+        showStudent();
+    } else {
+        alert("Kullanıcı yok!");
+    }
+}
+
+/* ÖĞRENCİ PANEL */
+function showStudent(){
+    let div = document.getElementById("student-info");
+    div.innerHTML = `
+        <h3>${currentUser.name}</h3>
+        <p>Sınıf: ${currentUser.class}</p>
+    `;
+}
+
+/* ÖĞRETMEN LİSTE */
+function renderList(){
+    let students = JSON.parse(localStorage.getItem("students") || "[]");
+    let div = document.getElementById("student-list");
+
+    div.innerHTML = "";
+
+    students.forEach(s=>{
+        div.innerHTML += `
+            <div>
+                <b>${s.name}</b><br>
+                ${s.email}<br>
+                Sınıf: ${s.class}
+            </div>
+        `;
+    });
+}
+
+/* ÇIKIŞ */
+function cikis(){
+    location.reload();
+}
+</script>
+
+</body>
+</html>
