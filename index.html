@@ -1,1 +1,71 @@
-        
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Frequency Research AI</title>
+    <style>
+        body { font-family: sans-serif; background: #0f172a; color: white; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        #chat-window { width: 100%; max-width: 700px; height: 400px; background: #1e293b; border-radius: 10px; overflow-y: auto; padding: 20px; margin-bottom: 10px; border: 1px solid #334155; }
+        .input-area { width: 100%; max-width: 700px; display: flex; gap: 10px; }
+        input { flex: 1; padding: 12px; border-radius: 5px; border: none; }
+        button { padding: 12px 20px; background: #00d2ff; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .user-msg { color: #00d2ff; margin-bottom: 10px; }
+        .ai-msg { color: #e2e8f0; margin-bottom: 15px; border-left: 2px solid #00d2ff; padding-left: 10px; }
+    </style>
+</head>
+<body>
+
+    <h2>📡 Global Wave & Frequency Research</h2>
+    <div id="chat-window"></div>
+
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Sorunuzu yazın (Ask anything about physics)...">
+        <button onclick="sendToAI()">Gönder</button>
+    </div>
+
+    <script>
+        // ELİNDEKİ KODU BURAYA YAPIŞTIRDIK
+        const API_KEY = ""; // GitHub'a atarken burayı boş bırakıyoruz!
+
+        async function sendToAI() {
+            const inputField = document.getElementById("userInput");
+            const chatWindow = document.getElementById("chat-window");
+            const userMessage = inputField.value.trim();
+
+            if (!userMessage) return;
+
+            chatWindow.innerHTML += `<div class="user-msg"><b>Siz:</b> ${userMessage}</div>`;
+            inputField.value = "";
+
+            try {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${API_KEY}`, 
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.1-70b-versatile",
+                        messages: [
+                            { 
+                                role: "system", 
+                                content: "Sen uluslararası bir dalga fiziği ve frekans uzmanısın. Kullanıcı hangi dilde yazarsa o dilde çok detaylı yanıt ver." 
+                            },
+                            { role: "user", content: userMessage }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+                const aiMessage = data.choices[0].message.content;
+                chatWindow.innerHTML += `<div class="ai-msg"><b>AI:</b> ${aiMessage}</div>`;
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            } catch (error) {
+                chatWindow.innerHTML += `<div style="color:red;">Bağlantı hatası!</div>`;
+            }
+        }
+    </script>
+</body>
+</html>        
