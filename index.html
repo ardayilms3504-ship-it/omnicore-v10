@@ -1,103 +1,50 @@
-   <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>OMNICORE V10</title>
     <style>
-        :root {
-            --bg: #000000;
-            --card-bg: #0a0a0a;
-            --accent: #ffffff;
-            --border: #1a1a1a;
-            --text-secondary: #a0a0a0;
-        }
-
+        :root { --bg: #000; --card-bg: #0a0a0a; --accent: #fff; --border: #1a1a1a; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
-
-        body { background-color: var(--bg); color: var(--accent); height: 100vh; overflow: hidden; }
-
-        #splash {
-            position: fixed; inset: 0; background: #000; display: flex; 
-            justify-content: center; align-items: center; z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
-
-        #main-app {
-            display: flex; flex-direction: column; height: 100vh;
-            opacity: 0; transition: opacity 0.5s ease;
-        }
-
+        body { background: var(--bg); color: var(--accent); height: 100vh; overflow: hidden; }
+        #splash { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 9999; transition: 0.5s; }
+        #main-app { display: flex; flex-direction: column; height: 100vh; opacity: 0; transition: 0.5s; }
         #main-app.active { opacity: 1; }
-
-        header {
-            padding: 15px 25px; border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
-        }
-
-        #chat-window {
-            flex: 1; overflow-y: auto; padding: 20px;
-            display: flex; flex-direction: column; gap: 20px;
-        }
-
-        .msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 1rem; line-height: 1.4; }
-        .user-msg { align-self: flex-end; background: var(--accent); color: #000; }
-        .ai-msg { align-self: flex-start; background: var(--card-bg); border: 1px solid var(--border); color: #ccc; }
-
-        .input-section { padding: 15px; border-top: 1px solid var(--border); }
-        .input-container {
-            width: 100%; max-width: 800px; margin: 0 auto;
-            background: var(--card-bg); border: 1px solid var(--border);
-            border-radius: 25px; padding: 5px 15px; display: flex; align-items: center; gap: 10px;
-        }
-
-        textarea {
-            flex: 1; background: transparent; border: none; color: #fff;
-            font-size: 16px; padding: 12px 0; outline: none; resize: none; max-height: 120px;
-        }
-
-        #send-btn {
-            background: #fff; border: none; width: 35px; height: 35px;
-            border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center;
-        }
+        header { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        #chat-window { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+        .msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 1rem; }
+        .user-msg { align-self: flex-end; background: #fff; color: #000; }
+        .ai-msg { align-self: flex-start; background: #0a0a0a; border: 1px solid #1a1a1a; color: #ccc; }
+        .input-section { padding: 15px; border-top: 1px solid #1a1a1a; }
+        .input-container { width: 100%; max-width: 800px; margin: 0 auto; background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 25px; padding: 5px 15px; display: flex; align-items: center; }
+        textarea { flex: 1; background: transparent; border: none; color: #fff; font-size: 16px; padding: 12px 0; outline: none; resize: none; }
+        #send-btn { background: #fff; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; }
     </style>
 </head>
 <body>
-
-    <div id="splash">
-        <h2 style="letter-spacing: 5px; font-weight: 200;">OMNICORE</h2>
-    </div>
-
+    <div id="splash"><h2>OMNICORE</h2></div>
     <div id="main-app">
-        <header>
-            <div style="font-weight: 600; font-size: 0.9rem;">OMNICORE V10</div>
-            <div style="font-size: 0.7rem; color: #00ff88;">ONLINE</div>
-        </header>
-
+        <header><div>OMNICORE V10</div><div style="color:#0f8;">ONLINE</div></header>
         <div id="chat-window"></div>
-
-        <div class="input-section">
-            <div class="input-container">
-                <textarea id="prompt" placeholder="Mesaj yaz..." rows="1"></textarea>
-                <button id="send-btn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                </button>
-            </div>
-        </div>
+        <div class="input-section"><div class="input-container">
+            <textarea id="prompt" placeholder="Mesaj yaz..." rows="1"></textarea>
+            <button id="send-btn">🚀</button>
+        </div></div>
     </div>
 
     <script>
+        // Splash geçişi
         window.onload = () => {
             setTimeout(() => {
                 document.getElementById('splash').style.opacity = '0';
                 document.getElementById('main-app').classList.add('active');
                 setTimeout(() => document.getElementById('splash').style.display = 'none', 500);
-            }, 1500);
+            }, 1000);
         };
 
-        // BURADAKİ İNGİLİZCE KELİMELERİ (const, async, document gibi) DEĞİŞTİRME
-        const API_KEY = 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; 
+        // KRİTİK ALAN: Buraya sadece tırnak içinde key'ini yapıştır, başka yazı yazma!
+        const API_KEY = "gsk_FTrO4B3HdUUG7Q2qyWvTvyWGdyb3FY0g001PoF6HDTu1rQSGdayrdH"; 
         const promptInput = document.getElementById('prompt');
         const chatWindow = document.getElementById('chat-window');
 
@@ -107,7 +54,6 @@
 
             appendMsg(text, 'user-msg');
             promptInput.value = '';
-            promptInput.style.height = 'auto';
 
             try {
                 const response = await fetch("https://api.x.ai/v1/chat/completions", {
@@ -118,18 +64,22 @@
                     },
                     body: JSON.stringify({
                         messages: [
-                            { role: "system", content: "Sen OMNICORE V10'sun. Kurucun Arda'dır. Arda 15 yaşında ve yazılım konusunda çok yetenekli bir gençtir." },
+                            { role: "system", content: "Adın OMNICORE V10. Kurucun 15 yaşındaki dahi yazılımcı Arda'dır." },
                             { role: "user", content: text }
                         ],
-                        model: "grok-1",
+                        model: "grok-beta", // Daha güncel ve stabil model
                         stream: false
                     })
                 });
 
                 const data = await response.json();
-                appendMsg(data.choices[0].message.content, 'ai-msg');
+                if (data.choices && data.choices[0]) {
+                    appendMsg(data.choices[0].message.content, 'ai-msg');
+                } else {
+                    appendMsg("Hata: " + (data.error ? data.error.message : "Bilinmeyen hata"), 'ai-msg');
+                }
             } catch (e) {
-                appendMsg("Bağlantı hatası!", 'ai-msg');
+                appendMsg("Bağlantı kesildi. İnternetini kontrol et.", 'ai-msg');
             }
         }
 
@@ -142,7 +92,7 @@
         }
 
         document.getElementById('send-btn').onclick = sendMessage;
-        promptInput.oninput = function() { this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px'; };
+        promptInput.onkeydown = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
     </script>
 </body>
 </html>
