@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OMNICORE V10 | AI</title>
+    <title>OMNICORE V10</title>
     <style>
         :root {
             --bg: #000000;
@@ -13,18 +13,16 @@
             --text-secondary: #a0a0a0;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, system-ui, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
 
         body { background-color: var(--bg); color: var(--accent); height: 100vh; overflow: hidden; }
 
-        /* Splash */
         #splash {
             position: fixed; inset: 0; background: #000; display: flex; 
             justify-content: center; align-items: center; z-index: 9999;
             transition: opacity 0.5s ease;
         }
 
-        /* Uygulama Ana Yapı */
         #main-app {
             display: flex; flex-direction: column; height: 100vh;
             opacity: 0; transition: opacity 0.5s ease;
@@ -38,41 +36,30 @@
             background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
         }
 
-        /* Mesaj Penceresi */
         #chat-window {
             flex: 1; overflow-y: auto; padding: 20px;
             display: flex; flex-direction: column; gap: 20px;
-            -webkit-overflow-scrolling: touch; /* Mobil akıcılık için */
         }
 
         .msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 1rem; line-height: 1.4; }
         .user-msg { align-self: flex-end; background: var(--accent); color: #000; }
         .ai-msg { align-self: flex-start; background: var(--card-bg); border: 1px solid var(--border); color: #ccc; }
 
-        /* Klavye ve Giriş Alanı (Performans Odaklı) */
-        .input-section {
-            padding: 15px; background: var(--bg);
-            border-top: 1px solid var(--border);
-        }
-
+        .input-section { padding: 15px; border-top: 1px solid var(--border); }
         .input-container {
             width: 100%; max-width: 800px; margin: 0 auto;
             background: var(--card-bg); border: 1px solid var(--border);
-            border-radius: 25px; padding: 5px 15px;
-            display: flex; align-items: center; gap: 10px;
+            border-radius: 25px; padding: 5px 15px; display: flex; align-items: center; gap: 10px;
         }
 
         textarea {
             flex: 1; background: transparent; border: none; color: #fff;
-            font-size: 16px; /* Mobilde zoom yapmaması için ideal */
-            padding: 12px 0; outline: none; resize: none;
-            max-height: 120px;
+            font-size: 16px; padding: 12px 0; outline: none; resize: none; max-height: 120px;
         }
 
         #send-btn {
             background: #fff; border: none; width: 35px; height: 35px;
-            border-radius: 50%; cursor: pointer; flex-shrink: 0;
-            display: flex; justify-content: center; align-items: center;
+            border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center;
         }
     </style>
 </head>
@@ -94,14 +81,13 @@
             <div class="input-container">
                 <textarea id="prompt" placeholder="Mesaj yaz..." rows="1"></textarea>
                 <button id="send-btn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                 </button>
             </div>
         </div>
     </div>
 
     <script>
-        // 1. Hızlı Splash
         window.onload = () => {
             setTimeout(() => {
                 document.getElementById('splash').style.opacity = '0';
@@ -110,8 +96,8 @@
             }, 1500);
         };
 
-        // 2. Mesaj Gönderme & Kimlik Bilgisi
-        const API_KEY = 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;
+        // BURADAKİ İNGİLİZCE KELİMELERİ (const, async, document gibi) DEĞİŞTİRME
+        const API_KEY = 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; 
         const promptInput = document.getElementById('prompt');
         const chatWindow = document.getElementById('chat-window');
 
@@ -119,7 +105,6 @@
             const text = promptInput.value.trim();
             if (!text) return;
 
-            // Ekranı güncelle
             appendMsg(text, 'user-msg');
             promptInput.value = '';
             promptInput.style.height = 'auto';
@@ -133,10 +118,7 @@
                     },
                     body: JSON.stringify({
                         messages: [
-                            { 
-                                role: "system", 
-                                content: "Senin adın OMNICORE V10. Kurucun Arda'dır. Arda 15 yaşında, yazılıma çok ilgili ve yetenekli bir gençtir. Bu uygulama Arda tarafından geliştirilmiştir." 
-                            },
+                            { role: "system", content: "Sen OMNICORE V10'sun. Kurucun Arda'dır. Arda 15 yaşında ve yazılım konusunda çok yetenekli bir gençtir." },
                             { role: "user", content: text }
                         ],
                         model: "grok-1",
@@ -147,7 +129,7 @@
                 const data = await response.json();
                 appendMsg(data.choices[0].message.content, 'ai-msg');
             } catch (e) {
-                appendMsg("Bağlantı hatası! API anahtarını kontrol et.", 'ai-msg');
+                appendMsg("Bağlantı hatası!", 'ai-msg');
             }
         }
 
@@ -159,20 +141,8 @@
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
-        // Klavye Hızlandırma & Gönderme Tetikleyicileri
         document.getElementById('send-btn').onclick = sendMessage;
-        
-        promptInput.oninput = function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        };
-
-        promptInput.onkeydown = (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        };
+        promptInput.oninput = function() { this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px'; };
     </script>
 </body>
-</html>                 
+</html>
