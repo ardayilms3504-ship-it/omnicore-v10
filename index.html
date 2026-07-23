@@ -1,234 +1,520 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Block Blast Final</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Shadow Hunt</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+    body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; color: #fff; }
+    #game-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+    
+    /* UI overlay */
+    .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .interactive { pointer-events: auto; }
+    
+    /* Main Menu */
+    #main-menu { position: absolute; inset: 0; background: rgba(5, 10, 8, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; }
+    #main-menu h1 { font-size: 3rem; color: #e74c3c; text-shadow: 0 0 15px rgba(231, 76, 60, 0.6); margin-bottom: 30px; letter-spacing: 4px; }
+    .menu-btn { background: #111; color: #eee; border: 2px solid #e74c3c; padding: 12px 35px; margin: 8px; font-size: 1.1rem; cursor: pointer; border-radius: 4px; width: 220px; transition: 0.2s; }
+    .menu-btn:hover { background: #e74c3c; color: #fff; box-shadow: 0 0 10px #e74c3c; }
 
-<style>
-body{
-margin:0;
-background:#0f0f12;
-color:white;
-font-family:Segoe UI;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-height:100vh;
-}
+    /* HUD */
+    #hud { position: absolute; top: 15px; left: 15px; font-size: 1.1rem; font-weight: bold; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 8px; border-left: 4px solid #3498db; }
+    
+    /* Action Prompt */
+    #action-btn { position: absolute; bottom: 120px; right: 30px; background: #2ecc71; color: #fff; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; display: none; box-shadow: 0 0 15px rgba(46, 204, 113, 0.6); }
+    #action-btn:active { transform: scale(0.95); }
 
-#board{
-display:grid;
-grid-template-columns:repeat(8,40px);
-grid-template-rows:repeat(8,40px);
-gap:3px;
-padding:10px;
-background:#16161a;
-border-radius:10px;
-}
+    /* Repair Progress Bar */
+    #progress-container { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 250px; height: 16px; background: rgba(0,0,0,0.7); border: 2px solid #fff; border-radius: 10px; display: none; overflow: hidden; }
+    #progress-bar { width: 0%; height: 100%; background: #2ecc71; transition: width 0.1s linear; }
 
-.cell{
-width:40px;height:40px;
-background:#24242b;
-border-radius:5px;
-}
+    /* Mobile Controls */
+    #joystick-zone { position: absolute; bottom: 20px; left: 20px; width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); }
+    #joystick-knob { position: absolute; top: 35px; left: 35px; width: 50px; height: 50px; background: rgba(231,76,60,0.7); border-radius: 50%; }
+    
+    .btn-group { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 10px; }
+    .control-btn { width: 60px; height: 60px; background: rgba(0,0,0,0.6); border: 2px solid #fff; border-radius: 50%; color: #fff; font-size: 0.9rem; font-weight: bold; display: flex; justify-content: center; align-items: center; }
+    .control-btn.active { background: #e74c3c; }
 
-#pieces{display:flex;gap:10px;margin-top:15px;}
-
-.piece{
-display:grid;
-gap:2px;
-padding:5px;
-background:#222;
-cursor:pointer;
-border-radius:6px;
-}
-
-.block{width:15px;height:15px;background:red;}
-
-.preview-valid{background:lime !important;}
-.preview-invalid{background:red !important;}
-
-.selected{outline:2px solid #00ccff;}
-
-button{margin-top:10px;padding:10px 20px;border:none;border-radius:8px;cursor:pointer;}
-</style>
+    /* Screen Overlay FX (Red Vignette) */
+    #danger-overlay { position: absolute; inset: 0; box-shadow: inset 0 0 100px rgba(255,0,0,0); pointer-events: none; transition: box-shadow 0.3s; }
+    
+    /* Game Over / Win Screens */
+    .end-screen { position: absolute; inset: 0; background: rgba(0,0,0,0.9); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 20; }
+    .end-screen h2 { font-size: 3rem; margin-bottom: 20px; }
+    .win { color: #2ecc71; }
+    .lose { color: #e74c3c; }
+  </style>
+  <!-- Three.js for 3D graphics -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
-
 <body>
 
-<h2>BLOCK BLAST FINAL</h2>
-<div id="score">Skor: 0</div>
+  <div id="game-container"></div>
+  <div id="danger-overlay"></div>
 
-<div id="board"></div>
-<div id="pieces"></div>
+  <!-- HUD & UI -->
+  <div class="overlay">
+    <div id="hud">Enerji İstasyonları: <span id="gen-count">0</span> / 5</div>
+    
+    <div id="progress-container">
+      <div id="progress-bar"></div>
+    </div>
 
-<button onclick="init()">Yeniden Başla</button>
+    <button id="action-btn" class="interactive">Eyleme Geç</button>
 
-<script>
-const board=document.getElementById("board");
-const piecesDiv=document.getElementById("pieces");
-const scoreEl=document.getElementById("score");
+    <!-- Mobile Touch Controls -->
+    <div id="joystick-zone" class="interactive">
+      <div id="joystick-knob"></div>
+    </div>
 
-let grid=[],cells=[],score=0,selected=null;
+    <div class="btn-group">
+      <div id="crouch-btn" class="control-btn interactive">Eğil</div>
+      <div id="run-btn" class="control-btn interactive">Koş</div>
+    </div>
+  </div>
 
-function init(){
-grid=Array.from({length:8},()=>Array(8).fill(0));
-board.innerHTML="";
-piecesDiv.innerHTML="";
-cells=[];
-score=0;
-updateScore();
+  <!-- Ana Menü -->
+  <div id="main-menu">
+    <h1>SHADOW HUNT</h1>
+    <button class="menu-btn interactive" onclick="startGame()">▶ OYNA</button>
+    <button class="menu-btn interactive" onclick="alert('Sisli ormandan kaçmak için 5 Enerji İstasyonunu tamir et ve Çıkış Kapısını aç! Katile yakalanma.')">ℹ HAKKINDA</button>
+  </div>
 
-for(let i=0;i<64;i++){
-const d=document.createElement("div");
-d.className="cell";
-d.onclick=()=>handle(i);
-board.appendChild(d);
-cells.push(d);
-}
+  <!-- Oyun Sonu Ekranları -->
+  <div id="win-screen" class="end-screen">
+    <h2 class="win">KAZANDIN!</h2>
+    <p>Ormandan başarıyla kaçmayı başardın.</p>
+    <br>
+    <button class="menu-btn interactive" onclick="location.reload()">Tekrar Oyna</button>
+  </div>
 
-spawn();
-clearPreview();
-}
+  <div id="lose-screen" class="end-screen">
+    <h2 class="lose">KAYBETTİN!</h2>
+    <p>Katil seni yakaladı...</p>
+    <br>
+    <button class="menu-btn interactive" onclick="location.reload()">Tekrar Dene</button>
+  </div>
 
-function updateScore(){
-scoreEl.textContent="Skor: "+score;
-}
+  <script>
+    // --- OYUN DEĞİŞKENLERİ ---
+    let scene, camera, renderer;
+    let player, killer;
+    let trees = [], bushes = [], cabinets = [], generators = [], exitGate;
+    let repairedGens = 0;
+    const totalGens = 5;
+    
+    // Durum Değişkenleri
+    let isHidden = false;
+    let isCrouching = false;
+    let isRunning = false;
+    let isRepairing = false;
+    let repairProgress = 0;
+    let activeInteractingObject = null;
+    let gameState = "MENU"; // MENU, PLAYING, WIN, LOSE
 
-function spawn(){
-piecesDiv.innerHTML="";
+    // Kontrol Değişkenleri
+    let moveForward = 0, moveRight = 0;
+    let touchStartX = 0, touchStartY = 0;
+    let isDraggingCamera = false;
+    let lastMouseX = 0, lastMouseY = 0;
+    let cameraYaw = 0, cameraPitch = 0;
 
-const shapes=[
-[[1,1],[1,0]],
-[[1,1,1]],
-[[1],[1],[1]],
-[[1,1],[1,1]]
-];
+    // Basit Ses Synthesizer (Web Audio API - Harici dosya gerektirmez)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playBeep(freq, duration) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.frequency.value = freq;
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+      osc.stop(audioCtx.currentTime + duration);
+    }
 
-for(let p=0;p<3;p++){
-const shape=shapes[Math.floor(Math.random()*shapes.length)];
+    // --- BAŞLANGIÇ VE SAHNE KURULUMU ---
+    function init() {
+      // 1. Sahne, Kamera, Renderer
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x020504);
+      scene.fog = new THREE.FogExp2(0x020504, 0.05); // Gece sisi
 
-const piece=document.createElement("div");
-piece.className="piece";
-piece.style.gridTemplateColumns=`repeat(${shape[0].length},15px)`;
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.shadowMap.enabled = true;
+      document.getElementById('game-container').appendChild(renderer.domElement);
 
-shape.forEach(r=>{
-r.forEach(v=>{
-const b=document.createElement("div");
-b.className="block";
-b.style.visibility=v?"visible":"hidden";
-piece.appendChild(b);
-});
-});
+      // 2. Işıklandırma (Karanlık Ay Işığı)
+      const ambientLight = new THREE.AmbientLight(0x1a2536, 0.8);
+      scene.add(ambientLight);
 
-piece.onclick=()=>{
-document.querySelectorAll(".piece").forEach(x=>x.classList.remove("selected"));
-piece.classList.add("selected");
-selected=shape;
-};
-piecesDiv.appendChild(piece);
-}
-}
+      const moonLight = new THREE.DirectionalLight(0x34495e, 0.5);
+      moonLight.position.set(20, 40, 20);
+      moonLight.castShadow = true;
+      scene.add(moonLight);
 
-function handle(i){
-if(!selected)return;
+      // 3. Zemin (Çim/Çamur)
+      const groundGeo = new THREE.PlaneGeometry(120, 120);
+      const groundMat = new THREE.MeshStandardMaterial({ color: 0x111e15, roughness: 0.9 });
+      const ground = new THREE.Mesh(groundGeo, groundMat);
+      ground.rotation.x = -Math.PI / 2;
+      ground.receiveShadow = true;
+      scene.add(ground);
 
-const r=Math.floor(i/8);
-const c=i%8;
+      // 4. Oyuncu Oluşturma
+      const playerGeo = new THREE.CylinderGeometry(0.5, 0.5, 1.8);
+      const playerMat = new THREE.MeshBasicMaterial({ color: 0x3498db, visible: false }); // Görünmez (FPS görünümü)
+      player = new THREE.Mesh(playerGeo, playerMat);
+      player.position.set(0, 0.9, 0);
+      scene.add(player);
 
-drawPreview(selected,r,c);
+      // Oyuncu Feneri
+      const flashlight = new THREE.SpotLight(0xffffff, 2, 25, Math.PI / 6, 0.5);
+      flashlight.position.set(0, 0.5, 0);
+      flashlight.target.position.set(0, 0.5, -1);
+      player.add(flashlight);
+      player.add(flashlight.target);
 
-if(can(selected,r,c)){
-place(selected,r,c);
-score+=10;
-updateScore();
-checkLines();
-}
-}
+      // 5. Harita Öğelerini Oluştur (Orman)
+      buildForest();
 
-function can(shape,r,c){
-for(let i=0;i<shape.length;i++){
-for(let j=0;j<shape[0].length;j++){
-if(shape[i][j]){
-if(r+i>=8||c+j>=8||grid[r+i][c+j])return false;
-}
-}
-}
-return true;
-}
+      // 6. Katil Oluşturma
+      const killerGeo = new THREE.CylinderGeometry(0.6, 0.6, 2.2);
+      const killerMat = new THREE.MeshStandardMaterial({ color: 0x990000, roughness: 0.3 });
+      killer = new THREE.Mesh(killerGeo, killerMat);
+      killer.position.set(30, 1.1, -30);
+      killer.castShadow = true;
+      scene.add(killer);
 
-function place(shape,r,c){
-for(let i=0;i<shape.length;i++){
-for(let j=0;j<shape[0].length;j++){
-if(shape[i][j]){
-grid[r+i][c+j]=1;
-cells[(r+i)*8+(c+j)].style.background="cyan";
-}
-}
-}
-clearPreview();
-}
+      // Katilin Kırmızı Göz Işığı
+      const redLight = new THREE.PointLight(0xff0000, 2, 8);
+      redLight.position.set(0, 0.8, -0.5);
+      killer.add(redLight);
 
-function checkLines(){
-for(let i=0;i<8;i++){
-if(grid[i].every(v=>v===1)){
-grid[i].fill(0);
-for(let j=0;j<8;j++){
-cells[i*8+j].style.background="#24242b";
-}
-score+=50;
-updateScore();
-}
-}
+      // 7. Kontroller & Etkinlikler
+      setupControls();
+      window.addEventListener('resize', onWindowResize);
 
-for(let c=0;c<8;c++){
-let full=true;
-for(let r=0;r<8;r++){
-if(grid[r][c]===0)full=false;
-}
-if(full){
-for(let r=0;r<8;r++){
-grid[r][c]=0;
-cells[r*8+c].style.background="#24242b";
-}
-score+=50;
-updateScore();
-}
-}
-}
+      // Döngüyü Başlat
+      animate();
+    }
 
-function drawPreview(shape,r,c){
-clearPreview();
+    // --- HARİTA VE OBJELER ---
+    function buildForest() {
+      // Ağaçlar
+      for (let i = 0; i < 70; i++) {
+        const tree = createTree();
+        tree.position.set(rand(-50, 50), 0, rand(-50, 50));
+        if (tree.position.distanceTo(player.position) > 8) {
+          scene.add(tree);
+          trees.push(tree);
+        }
+      }
 
-let ok=true;
+      // Çalılar (Saklanma)
+      for (let i = 0; i < 15; i++) {
+        const bush = new THREE.Mesh(
+          new THREE.SphereGeometry(1.2, 8, 8),
+          new THREE.MeshStandardMaterial({ color: 0x0d3b1e, roughness: 1.0 })
+        );
+        bush.position.set(rand(-45, 45), 0.6, rand(-45, 45));
+        scene.add(bush);
+        bushes.push(bush);
+      }
 
-for(let i=0;i<shape.length;i++){
-for(let j=0;j<shape[0].length;j++){
-if(shape[i][j]){
-if(r+i>=8||c+j>=8||grid[r+i][c+j]) ok=false;
-}
-}
-}
+      // Dolaplar (Saklanma)
+      for (let i = 0; i < 6; i++) {
+        const cab = new THREE.Mesh(
+          new THREE.BoxGeometry(1.2, 2.4, 1.2),
+          new THREE.MeshStandardMaterial({ color: 0x4a3525 })
+        );
+        cab.position.set(rand(-40, 40), 1.2, rand(-40, 40));
+        scene.add(cab);
+        cabinets.push(cab);
+      }
 
-for(let i=0;i<shape.length;i++){
-for(let j=0;j<shape[0].length;j++){
-if(shape[i][j]){
-if(r+i<8&&c+j<8){
-cells[(r+i)*8+(c+j)].classList.add(ok?"preview-valid":"preview-invalid");
-}
-}
-}
-}
-}
+      // 5 Enerji İstasyonu (Generators)
+      const genPositions = [
+        {x: -30, z: -30}, {x: 30, z: -20}, 
+        {x: -25, z: 25}, {x: 25, z: 30}, {x: 0, z: -35}
+      ];
+      genPositions.forEach(pos => {
+        const gen = new THREE.Mesh(
+          new THREE.BoxGeometry(1.5, 1.8, 1.5),
+          new THREE.MeshStandardMaterial({ color: 0xf39c12 })
+        );
+        gen.position.set(pos.x, 0.9, pos.z);
+        gen.userData = { isRepaired: false, progress: 0 };
+        scene.add(gen);
+        generators.push(gen);
+      });
 
-function clearPreview(){
-cells.forEach(c=>c.classList.remove("preview-valid","preview-invalid"));
-}
+      // Çıkış Kapısı
+      exitGate = new THREE.Mesh(
+        new THREE.BoxGeometry(4, 4, 0.5),
+        new THREE.MeshStandardMaterial({ color: 0x7f8c8d })
+      );
+      exitGate.position.set(0, 2, -58);
+      scene.add(exitGate);
+    }
 
-init();
-</script>
+    function createTree() {
+      const group = new THREE.Group();
+      const trunk = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.3, 0.5, 4),
+        new THREE.MeshStandardMaterial({ color: 0x2c1d11 })
+      );
+      trunk.position.y = 2;
+      group.add(trunk);
 
-</body>
-</html>
+      const leaves = new THREE.Mesh(
+        new THREE.ConeGeometry(2, 5, 6),
+        new THREE.MeshStandardMaterial({ color: 0x082111 })
+      );
+      leaves.position.y = 5.5;
+      group.add(leaves);
+      return group;
+    }
+
+    // --- KONTROLLER VE ETKİLEŞİM ---
+    function setupControls() {
+      // Joystick (Dokunmatik Hareket)
+      const zone = document.getElementById('joystick-zone');
+      const knob = document.getElementById('joystick-knob');
+      
+      zone.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+      }, {passive: true});
+
+      zone.addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        const dx = touch.clientX - touchStartX;
+        const dy = touch.clientY - touchStartY;
+        const dist = Math.min(Math.hypot(dx, dy), 40);
+        const angle = Math.atan2(dy, dx);
+
+        knob.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
+        
+        moveRight = Math.cos(angle) * (dist / 40);
+        moveForward = -Math.sin(angle) * (dist / 40);
+      }, {passive: true});
+
+      zone.addEventListener('touchend', () => {
+        knob.style.transform = `translate(0px, 0px)`;
+        moveForward = 0;
+        moveRight = 0;
+      });
+
+      // Kamera Döndürme (Dokunmatik/Fare)
+      window.addEventListener('touchstart', (e) => {
+        if (e.target.classList.contains('interactive')) return;
+        lastMouseX = e.touches[0].clientX;
+        lastMouseY = e.touches[0].clientY;
+        isDraggingCamera = true;
+      }, {passive: true});
+
+      window.addEventListener('touchmove', (e) => {
+        if (!isDraggingCamera) return;
+        const dx = e.touches[0].clientX - lastMouseX;
+        const dy = e.touches[0].clientY - lastMouseY;
+        lastMouseX = e.touches[0].clientX;
+        lastMouseY = e.touches[0].clientY;
+
+        cameraYaw -= dx * 0.005;
+        cameraPitch -= dy * 0.005;
+        cameraPitch = Math.max(-Math.PI/3, Math.min(Math.PI/3, cameraPitch));
+      }, {passive: true});
+
+      window.addEventListener('touchend', () => isDraggingCamera = false);
+
+      // Butonlar
+      const crouchBtn = document.getElementById('crouch-btn');
+      crouchBtn.addEventListener('click', () => {
+        isCrouching = !isCrouching;
+        crouchBtn.classList.toggle('active', isCrouching);
+        player.scale.y = isCrouching ? 0.5 : 1.0;
+      });
+
+      const runBtn = document.getElementById('run-btn');
+      runBtn.addEventListener('click', () => {
+        isRunning = !isRunning;
+        runBtn.classList.toggle('active', isRunning);
+      });
+
+      // Etkileşim (Aksiyona Geç)
+      const actionBtn = document.getElementById('action-btn');
+      actionBtn.addEventListener('touchstart', startAction);
+      actionBtn.addEventListener('touchend', stopAction);
+      actionBtn.addEventListener('mousedown', startAction);
+      actionBtn.addEventListener('mouseup', stopAction);
+    }
+
+    function startAction(e) {
+      if (e) e.preventDefault();
+      if (!activeInteractingObject) return;
+
+      if (activeInteractingObject.type === 'gen') {
+        isRepairing = true;
+        document.getElementById('progress-container').style.display = 'block';
+      } else if (activeInteractingObject.type === 'hide') {
+        toggleHide();
+      } else if (activeInteractingObject.type === 'exit') {
+        winGame();
+      }
+    }
+
+    function stopAction() {
+      isRepairing = false;
+      document.getElementById('progress-container').style.display = 'none';
+    }
+
+    function toggleHide() {
+      isHidden = !isHidden;
+      const btn = document.getElementById('action-btn');
+      btn.innerText = isHidden ? "Çık" : "Saklan";
+      if (isHidden) {
+        player.position.copy(activeInteractingObject.obj.position);
+      }
+    }
+
+    // --- OYUN MANTIĞI VE DÖNGÜSÜ ---
+    function startGame() {
+      document.getElementById('main-menu').style.display = 'none';
+      gameState = "PLAYING";
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (gameState === "PLAYING") {
+        updatePlayer();
+        updateKiller();
+        checkInteractions();
+      }
+
+      // Kamerayı Oyuncuya Bağla
+      camera.position.copy(player.position);
+      camera.position.y += isCrouching ? 0.2 : 0.7;
+      
+      const lookTarget = new THREE.Vector3(
+        player.position.x + Math.sin(cameraYaw) * Math.cos(cameraPitch),
+        camera.position.y + Math.sin(cameraPitch),
+        player.position.z + Math.cos(cameraYaw) * Math.cos(cameraPitch)
+      );
+      camera.lookAt(lookTarget);
+
+      renderer.render(scene, camera);
+    }
+
+    function updatePlayer() {
+      if (isHidden) return; // Saklanırken hareket edilmez
+
+      let speed = isRunning ? 0.15 : (isCrouching ? 0.04 : 0.08);
+      
+      // Hareket Vektörü Hesabı
+      const frontDir = new THREE.Vector3(Math.sin(cameraYaw), 0, Math.cos(cameraYaw)).normalize();
+      const rightDir = new THREE.Vector3().crossVectors(frontDir, new THREE.Vector3(0, 1, 0)).negate();
+
+      player.position.addScaledVector(frontDir, moveForward * speed);
+      player.position.addScaledVector(rightDir, moveRight * speed);
+
+      // Sınır Kontrolü
+      player.position.x = Math.max(-55, Math.min(55, player.position.x));
+      player.position.z = Math.max(-55, Math.min(55, player.position.z));
+
+      // Çalı İçi Saklanma Kontrolü
+      let insideBush = false;
+      bushes.forEach(b => {
+        if (player.position.distanceTo(b.position) < 1.2) insideBush = true;
+      });
+      if (insideBush && !isRunning) isHidden = true;
+      else if (!activeInteractingObject || activeInteractingObject.type !== 'hide') isHidden = false;
+    }
+
+    function updateKiller() {
+      const distToPlayer = killer.position.distanceTo(player.position);
+
+      // Yakınlık Ses & Efekti
+      const dangerLevel = Math.max(0, 1 - distToPlayer / 20);
+      document.getElementById('danger-overlay').style.boxShadow = `inset 0 0 ${dangerLevel * 120}px rgba(255,0,0,${dangerLevel * 0.8})`;
+
+      if (dangerLevel > 0.3 && Math.random() < 0.03) {
+        playBeep(100 + (1 - dangerLevel) * 200, 0.1); // Kalp atışı efekti
+      }
+
+      // Katil Takip Yapay Zekası
+      let canSeePlayer = !isHidden && (distToPlayer < (isRunning ? 25 : 12));
+      
+      if (canSeePlayer) {
+        // Oyuncuya Doğru Koş
+        const dir = new THREE.Vector3().subVectors(player.position, killer.position).normalize();
+        killer.position.addScaledVector(dir, 0.06);
+        killer.lookAt(player.position);
+
+        // Yakalama
+        if (distToPlayer < 1.5) {
+          loseGame();
+        }
+      } else {
+        // Devriye Gez (Rastgele Yürüme)
+        if (!killer.userData.target || killer.position.distanceTo(killer.userData.target) < 2) {
+          killer.userData.target = new THREE.Vector3(rand(-40, 40), 1.1, rand(-40, 40));
+        }
+        const dir = new THREE.Vector3().subVectors(killer.userData.target, killer.position).normalize();
+        killer.position.addScaledVector(dir, 0.03);
+        killer.lookAt(killer.userData.target);
+      }
+    }
+
+    function checkInteractions() {
+      const actionBtn = document.getElementById('action-btn');
+      activeInteractingObject = null;
+
+      // 1. Enerji İstasyonu Kontrolü
+      generators.forEach(gen => {
+        if (!gen.userData.isRepaired && player.position.distanceTo(gen.position) < 2.5) {
+          activeInteractingObject = { type: 'gen', obj: gen };
+          actionBtn.innerText = "Tamir Et";
+          actionBtn.style.display = "block";
+
+          if (isRepairing) {
+            gen.userData.progress += 0.3; // Tamir hızı
+            document.getElementById('progress-bar').style.width = gen.userData.progress + "%";
+            if (Math.random() < 0.1) playBeep(400, 0.05); // Tamir sesi
+
+            if (gen.userData.progress >= 100) {
+              gen.userData.isRepaired = true;
+              gen.material.color.setHex(0x2ecc71); // Yeşil yap
+              repairedGens++;
+              document.getElementById('gen-count').innerText = repairedGens;
+              stopAction();
+              playBeep(800, 0.3);
+
+              if (repairedGens >= totalGens) {
+                exitGate.material.color.setHex(0x2ecc71); // Kapı hazır
+              }
+            }
+          }
+        }
+      });
+
+      // 2. Dolap Saklanma Kontrolü
+      cabinets.forEach(cab => {
+        if (player.position.distanceTo(cab.position) < 2.0) {
+          activeInteractingObject = { type: 'hide', obj: cab };
+          if (!isHidden) actionBtn.innerText = "Saklan";
+          actionBtn.style.display = "block";
+        }
+      });
+
+      // 3. Çıkış Kapısı Kontrolü
+      if (repairedGens >= totalGens && player.position.distanceTo(exitGate.position) < 4) {
+        activeInteractingObject = { type: 'exit', ob
