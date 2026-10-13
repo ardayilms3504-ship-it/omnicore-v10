@@ -1,0 +1,312 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Shadow Arena</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#10121c;color:white;font-family:Arial,sans-serif;text-align:center}
+h1{letter-spacing:3px;color:#b9dfff}
+button{background:#27364e;color:white;border:1px solid #6b83a6;
+border-radius:10px;padding:13px 16px;font-size:15px;margin:5px}
+button:active{background:#5274a2}
+.screen{padding:24px 12px}
+.hidden{display:none!important}
+.menu{min-height:100dvh;display:flex;flex-direction:column;justify-content:center;
+align-items:center;background:radial-gradient(ellipse,#333d59,#10121c 70%)}
+.menu button{width:min(270px,90%);padding:16px}
+canvas{display:block;width:100%;max-width:850px;margin:auto;
+background:linear-gradient(#283047,#171a26);touch-action:none}
+#controls{max-width:850px;margin:auto;display:flex;justify-content:center;
+flex-wrap:wrap;gap:2px;background:#151824;padding:6px}
+#controls button{min-width:58px;touch-action:none;user-select:none}
+#status{min-height:22px;color:#c7d7f4}
+.small{color:#b8c1d3;font-size:13px;max-width:500px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<section id="menu" class="screen menu">
+<h1>SHADOW ARENA</h1>
+<p class="small">Gölgelerin arasından yüksel.</p>
+<button onclick="startGame()">▶ BAŞLA</button>
+<button onclick="showScreen('settings')">⚙ AYARLAR</button>
+<button onclick="showScreen('policy')">KULLANIM POLİTİKASI</button>
+<p class="small">Kişisel oyun projesi · Sürüm 0.1</p>
+</section>
+
+<section id="settings" class="screen hidden">
+<h2>Ayarlar</h2>
+<label><input id="sound" type="checkbox" checked> Ses efektleri açık</label>
+<p><label>Oyun zorluğu
+<select id="difficulty">
+<option value="0.8">Kolay</option>
+<option value="1" selected>Normal</option>
+<option value="1.3">Zor</option>
+</select></label></p>
+<p class="small">Zorluk, rakibin saldırı sıklığını ve hasarını etkiler.</p>
+<button onclick="showScreen('menu')">Geri dön</button>
+</section>
+
+<section id="policy" class="screen hidden">
+<h2>Kullanım Politikası</h2>
+<p class="small">
+Bu, kişisel kullanım amacıyla hazırlanmış bağımsız bir oyun prototipidir.
+Gerçek Shadow Fight 2'nin resmî oyunu değildir. Görseller ve oyun kodu
+bu prototip için oluşturulmuştur. Oyun şu an kayıt sistemi, çevrim içi
+özellikler veya kişisel veri toplama işlevi içermez.
+</p>
+<button onclick="showScreen('menu')">Geri dön</button>
+</section>
+
+<section id="game" class="hidden">
+<h3>⚔ ARENA: LYNX</h3>
+<canvas id="c" width="850" height="430"></canvas>
+<div id="status">Rakibine karşı savaş!</div>
+<div id="controls">
+<button id="left">◀</button>
+<button id="right">▶</button>
+<button id="jump">Zıpla</button>
+<button id="attack">Saldır</button>
+<button id="magic">⚡ Yıldırım</button>
+</div>
+<button onclick="showScreen('menu')">Ana menü</button>
+<button onclick="startGame()">Yeniden başla</button>
+</section>
+
+<script>
+const $=id=>document.getElementById(id);
+function showScreen(id){
+  stopGame();
+  ["menu","settings","policy","game"].forEach(s=>$(s).classList.add("hidden"));
+  $(id).classList.remove("hidden");
+}
+let running=false,raf=0,frame=0,keys={};
+let p,e,bolts=[],sparks=[],message="",soundOn=true;
+const c=$("c"),ctx=c.getContext("2d");
+
+function startGame(){
+  showScreen("game");
+  p={x:180,y:325,hp:100,vy:0,attack:0,magic:0,flash:0};
+  e={x:670,y:325,hp:100,attack:0,invis:0,smoke:0,cool:100,flash:0};
+  bolts=[];sparks=[];frame=0;keys={};message="Lynx'i yen!";
+  running=true;
+  cancelAnimationFrame(raf);
+  loop();
+}
+function stopGame(){running=false;cancelAnimationFrame(raf)}
+function press(id,key,action){
+  const b=$(id);
+  b.addEventListener("pointerdown",ev=>{
+    ev.preventDefault();
+    if(!running)return;
+    keys[key]=true;
+    if(action)action();
+  });
+  for(const event of ["pointerup","pointercancel","lostpointercapture"])
+    b.addEventListener(event,()=>keys[key]=false);
+}
+press("left","left");
+press("right","right");
+press("jump","jump",()=>{if(p.y>=325)p.vy=-12});
+press("attack","attack",()=>{p.attack=14});
+press("magic","magic",()=>{
+  if(p.magic<=0 && e.hp>0){
+    p.magic=170;
+    bolts.push({x:p.x+25,y:p.y-65,t:0});
+  }
+});
+
+function hitEnemy(d){
+  if(e.hp<=0)return;
+  e.hp=Math.max(0,e.hp-d);
+  e.flash=7;
+  e.invis=0;
+  for(let i=0;i<10;i++)
+    sparks.push({x:e.x,y:e.y-55,vx:(Math.random()-.5)*6,
+      vy:(Math.random()-.5)*6,t:18,color:"#b7d9ff"});
+}
+function hitPlayer(d){
+  if(p.flash>0)return;
+  p.hp=Math.max(0,p.hp-d);
+  p.flash=25;
+}
+function drawFighter(f,hero){
+  if(!hero && f.invis>0){
+    ctx.globalAlpha=.16;
+  }
+  ctx.save();
+  ctx.translate(f.x,f.y);
+  const direction=hero?(e.x>=p.x?1:-1):(p.x>=e.x?1:-1);
+  ctx.scale(direction,1);
+  const color=f.flash>0?"#b9dfff":"#080b12";
+  ctx.strokeStyle=color;ctx.fillStyle=color;
+  ctx.lineWidth=10;ctx.lineCap="round";
+
+  // Original stylized shadow fighter
+  ctx.beginPath();ctx.arc(0,-83,15,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(0,-67);ctx.lineTo(0,-34);
+  ctx.moveTo(0,-54);ctx.lineTo(-21,-38);
+  ctx.lineTo(-29,-48);
+  ctx.moveTo(0,-54);ctx.lineTo(22,-45);
+  ctx.moveTo(0,-34);ctx.lineTo(-15,0);
+  ctx.moveTo(0,-34);ctx.lineTo(17,0);
+  ctx.stroke();
+
+  // Fictional energy blade, purely a visual game effect
+  if(hero){
+    ctx.strokeStyle="#b8dfff";ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(24,-45);ctx.lineTo(49,-77);ctx.stroke();
+    if(f.attack>0){
+      ctx.strokeStyle="#e6f5ff";ctx.lineWidth=5;
+      ctx.beginPath();ctx.arc(8,-50,48,-.9,.65);ctx.stroke();
+    }
+  }else if(f.attack>0){
+    ctx.strokeStyle="#aab2d0";ctx.lineWidth=5;
+    ctx.beginPath();ctx.moveTo(15,-47);ctx.lineTo(40,-35);ctx.stroke();
+  }
+  ctx.restore();ctx.globalAlpha=1;
+}
+function bar(x,y,hp,label){
+  ctx.fillStyle="#090b12";ctx.fillRect(x,y,260,19);
+  ctx.fillStyle=hp>30?"#64d995":"#ef5965";
+  ctx.fillRect(x,y,260*hp/100,19);
+  ctx.strokeStyle="#d8e0ef";ctx.strokeRect(x,y,260,19);
+  ctx.fillStyle="white";ctx.font="bold 14px Arial";
+  ctx.fillText(label,x,y-7);
+}
+function lightning(x1,y1,x2,y2){
+  ctx.save();ctx.strokeStyle="#68dcff";ctx.lineWidth=4;
+  ctx.shadowColor="#00bfff";ctx.shadowBlur=16;
+  ctx.beginPath();ctx.moveTo(x1,y1);
+  let n=9;
+  for(let i=1;i<n;i++){
+    let t=i/n;
+    ctx.lineTo(x1+(x2-x1)*t,
+      y1+(y2-y1)*t+(Math.random()-.5)*32);
+  }
+  ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();
+}
+function loop(){
+ if(!running)return;
+ raf=requestAnimationFrame(loop);
+ frame++;
+ const diff=Number($("difficulty").value);
+
+ // Arena
+ ctx.clearRect(0,0,c.width,c.height);
+ ctx.fillStyle="#343b50";
+ ctx.fillRect(0,350,850,80);
+ ctx.strokeStyle="#818da6";ctx.lineWidth=3;
+ ctx.beginPath();ctx.moveTo(0,350);ctx.lineTo(850,350);ctx.stroke();
+ // Distant architecture
+ ctx.fillStyle="#22283a";
+ for(let i=0;i<850;i+=95){
+   ctx.fillRect(i,245,35,105);
+   ctx.fillRect(i-10,235,55,10);
+ }
+ bar(25,35,p.hp,"SEN");
+ bar(565,35,e.hp,"LYNX");
+
+ if(p.hp>0&&e.hp>0){
+   if(keys.left)p.x-=4;
+   if(keys.right)p.x+=4;
+   p.x=Math.max(35,Math.min(815,p.x));
+   p.vy+=.65;p.y+=p.vy;
+   if(p.y>325){p.y=325;p.vy=0}
+
+   // Boss movement and attacks
+   if(e.cool>0)e.cool--;
+   if(e.invis>0)e.invis--;
+   if(e.smoke>0)e.smoke--;
+   if(e.hp>0){
+     if(Math.abs(e.x-p.x)>85)e.x+=(p.x<e.x?-1:1)*1.25*diff;
+     e.x=Math.max(35,Math.min(815,e.x));
+
+     if(e.cool<=0){
+       const roll=Math.random();
+       if(roll<.45){
+         e.invis=100;e.smoke=35;
+         e.cool=190;
+       }else if(roll<.75){
+         bolts.push({x:e.x,y:e.y-65,t:0,enemy:true});
+         e.cool=105;
+       }else{
+         e.attack=20;e.cool=95;
+       }
+     }
+     if(e.attack>0){
+       e.attack--;
+       if(e.attack===12 && Math.abs(e.x-p.x)<100)
+         hitPlayer(7*diff);
+     }
+   }
+
+   // Player melee attack
+   if(p.attack>0){
+     p.attack--;
+     if(p.attack===9 && Math.abs(p.x-e.x)<105)
+       hitEnemy(9);
+   }
+   if(p.magic>0)p.magic--;
+   if(p.flash>0)p.flash--;
+   if(e.flash>0)e.flash--;
+
+   // Lightning and enemy energy projectiles
+   bolts=bolts.filter(b=>b.t<18);
+   bolts.forEach(b=>{
+     if(b.enemy){
+       b.x+=(p.x-b.x)*.065;b.y+=(p.y-65-b.y)*.065;
+       ctx.fillStyle="#c8a7ff";
+       ctx.beginPath();ctx.arc(b.x,b.y,12,0,Math.PI*2);ctx.fill();
+       if(++b.t===15 && Math.abs(b.x-p.x)<45)hitPlayer(9*diff);
+     }else{
+       lightning(b.x,b.y,e.x,e.y-60);
+       if(b.t===1 && e.invis<=0)hitEnemy(22);
+       b.t++;
+     }
+   });
+
+   // Smoke cloud during invisibility
+   if(e.smoke>0){
+     for(let i=0;i<12;i++){
+       ctx.fillStyle="rgba(175,183,207,.12)";
+       ctx.beginPath();
+       ctx.arc(e.x+(Math.random()-.5)*65,
+         e.y-35+(Math.random()-.5)*80,12+Math.random()*12,
+         0,Math.PI*2);ctx.fill();
+     }
+   }
+   drawFighter(p,true);
+   drawFighter(e,false);
+
+   sparks=sparks.filter(s=>s.t>0);
+   sparks.forEach(s=>{
+     ctx.fillStyle=s.color;ctx.fillRect(s.x,s.y,4,4);
+     s.x+=s.vx;s.y+=s.vy;s.t--;
+   });
+
+   if(e.hp<=0)message="KAZANDIN! Lynx yenildi.";
+   else if(p.hp<=0)message="KAYBETTİN! Tekrar deneyebilirsin.";
+   else if(e.invis>0)message="Lynx görünmez oldu!";
+   else if(p.magic>0)message="Yıldırım beklemede...";
+   else message="Yıldırım hazır!";
+ }else{
+   drawFighter(p,true);drawFighter(e,false);
+ }
+ $("status").textContent=message;
+ if(p.hp<=0||e.hp<=0){
+   ctx.fillStyle="rgba(8,10,18,.72)";ctx.fillRect(180,145,490,95);
+   ctx.fillStyle="white";ctx.textAlign="center";
+   ctx.font="bold 30px Arial";
+   ctx.fillText(p.hp<=0?"KAYBETTİN":"ZAFER!",425,190);
+   ctx.font="16px Arial";ctx.fillText("Yeniden başla düğmesine bas",425,220);
+   ctx.textAlign="left";
+ }
+}
+</script>
+</body>
+</html>
